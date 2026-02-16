@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &5809184083156035054
+--- !u!1001 &5980691394679931194
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2048669713523417237, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Name
-      value: Happiness
+      value: Scared
       objectReference: {fileID: 0}
     - target: {fileID: 6862830993585495264, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_LocalPosition.x
@@ -52,17 +52,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7237758911775727951, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: emotionType
+      value: Scared
+      objectReference: {fileID: 0}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Color.b
-      value: 0.015686275
+      value: 0.257985
       objectReference: {fileID: 0}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Color.g
-      value: 0.92156863
+      value: 0.690566
       objectReference: {fileID: 0}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Color.r
-      value: 1
+      value: 0.1498397
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
