@@ -3,42 +3,70 @@ using System.Collections;
 
 public class SparkSpawner : MonoBehaviour
 {
-    [Header("Spawn Settings")]
-    public GameObject[] sparkPrefabs; // Array of different spark types (Happy, Sad, etc.)
-    public float spawnInterval = 2.0f; // Seconds between each spawn
-    public Vector2 spawnPadding = new Vector2(1.5f, 1.5f); // Keeps sparks away from screen edges
+    [Header("Assets")]
+    public GameObject[] sparkPrefabs;
+    public GameObject spawnParticlePrefab; 
+    public AudioClip spawnSound;           
+    
+    [Header("Spawn Locations")]
+    public Transform[] spawnPoints;
+    public Transform factoryCenter; // Create an empty object in the middle of the screen!
 
-    private Camera _mainCamera;
+    [Header("Movement Settings")]
+    public float spawnInterval = 2.0f;
+    public float warningDelay = 0.5f; 
+    public float sparkSpeed = 5f; // Speed of the straight line move
+
+    private AudioSource _audioSource;
+
+    void Awake()
+    {
+        _audioSource = gameObject.AddComponent<AudioSource>();
+        _audioSource.playOnAwake = false;
+    }
 
     void Start()
     {
-        _mainCamera = Camera.main;
-        StartCoroutine(SpawnRoutine());
+        StartCoroutine(SpawnLoop());
     }
 
-    IEnumerator SpawnRoutine()
+    IEnumerator SpawnLoop()
     {
         while (true)
         {
             yield return new WaitForSeconds(spawnInterval);
-            SpawnSpark();
+            Transform point = spawnPoints[Random.Range(0, spawnPoints.Length)];
+            StartCoroutine(WarningSequence(point));
         }
     }
 
-    void SpawnSpark()
+    IEnumerator WarningSequence(Transform point)
     {
-        // 1. Get random screen position (0.0 to 1.0)
-        float randomX = Random.Range(0.1f, 0.9f); 
-        float randomY = Random.Range(0.2f, 0.8f);
+        // 1. Small Warning Particle
+        if (spawnParticlePrefab != null)
+        {
+            GameObject effect = Instantiate(spawnParticlePrefab, point.position, Quaternion.identity);
+            effect.transform.localScale = Vector3.one * 0.3f;
+            Destroy(effect, 1f);
+        }
 
-        // 2. Convert to World Space for the 2D scene
-        Vector3 spawnPos = _mainCamera.ViewportToWorldPoint(new Vector3(randomX, randomY, 0));
-        spawnPos.z = 0; // Ensure it's on the 2D plane
+        yield return new WaitForSeconds(warningDelay);
 
-        // 3. Select a random prefab from your array
-        int randomIndex = Random.Range(0, sparkPrefabs.Length);
+        // 2. Play Sound
+        if (spawnSound != null) _audioSource.PlayOneShot(spawnSound, 0.6f);
         
-        // 4. Instantiate (Create) the spark
-        Instantiate(sparkPrefabs[randomIndex], spawnPos, Quaternion.identity);
+        // 3. Spawn & Launch in a Straight Line
+        GameObject sparkObj = Instantiate(sparkPrefabs[Random.Range(0, sparkPrefabs.Length)], point.position, Quaternion.identity);
+        Rigidbody2D rb = sparkObj.GetComponent<Rigidbody2D>();
+
+        if (rb != null && factoryCenter != null)
+        {
+            // Calculate direction from spawn point to the center of the screen
+            Vector2 direction = (factoryCenter.position - point.position).normalized;
+            rb.linearVelocity = direction * sparkSpeed; // Moves in a perfect straight line
+        }
     }
 }
+
+
+
