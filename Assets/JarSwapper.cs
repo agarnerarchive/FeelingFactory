@@ -23,46 +23,54 @@ public class JarSwapper : MonoBehaviour
     }
 
     IEnumerator SwapRoutine()
+{
+    while (true)
     {
-        while (true)
+        // 1. Wait until it's time to swap
+        yield return new WaitForSeconds(swapInterval - warningDuration);
+
+        // 2. QUICK WARNING: Short shake (e.g. 1 second)
+        float elapsed = 0f;
+        while (elapsed < warningDuration)
         {
-            yield return new WaitForSeconds(swapInterval - warningDuration);
-
-            // 1. WARNING: Shake before vanishing
-            float elapsed = 0f;
-            while (elapsed < warningDuration)
-            {
-                for (int i = 0; i < jars.Length; i++)
-                {
-                    // FIXED: Simple shake math without the complex IndexOf call
-                    Vector3 shakeOffset = (Vector3)Random.insideUnitCircle * 0.1f;
-                    jars[i].transform.position = _cornerPositions[i] + shakeOffset;
-                }
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-
-            // 2. VANISH: Play effect and hide jars
-            foreach (GameObject jar in jars)
-            {
-                if (poofEffectPrefab != null) Instantiate(poofEffectPrefab, jar.transform.position, Quaternion.identity);
-                jar.SetActive(false); 
-            }
-
-            yield return new WaitForSeconds(0.5f); 
-
-            // 3. RESPAWN: Move to new spots and show jars
-            ShufflePositions();
-            
             for (int i = 0; i < jars.Length; i++)
             {
-                jars[i].SetActive(true);
-                // Update our record of where the jar is currently "sitting"
-                _cornerPositions[i] = jars[i].transform.position;
-                if (poofEffectPrefab != null) Instantiate(poofEffectPrefab, jars[i].transform.position, Quaternion.identity);
+                // Very fast jitter
+                jars[i].transform.position = _cornerPositions[i] + (Vector3)Random.insideUnitCircle * 0.15f;
+            }
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 3. INSTANT VANISH: Play effect and hide
+        foreach (GameObject jar in jars)
+        {
+            if (poofEffectPrefab != null) {
+                GameObject poof = Instantiate(poofEffectPrefab, jar.transform.position, Quaternion.identity);
+                Destroy(poof, 0.5f); // Ensure the particle cleans up fast
+            }
+            jar.SetActive(false); 
+        }
+
+        // REDUCED PAUSE: Only 0.2 seconds of "blind" time
+        yield return new WaitForSeconds(0.2f); 
+
+        // 4. QUICK RESPAWN: Move and show
+        ShufflePositions();
+        
+        for (int i = 0; i < jars.Length; i++)
+        {
+            jars[i].SetActive(true);
+            _cornerPositions[i] = jars[i].transform.position; // Lock new home
+            
+            if (poofEffectPrefab != null) {
+                GameObject poof = Instantiate(poofEffectPrefab, jars[i].transform.position, Quaternion.identity);
+                Destroy(poof, 0.5f);
             }
         }
     }
+}
+
 
     void ShufflePositions()
     {
