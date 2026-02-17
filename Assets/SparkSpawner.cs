@@ -16,8 +16,14 @@ public class SparkSpawner : MonoBehaviour
     public float spawnInterval = 2.0f;
     public float warningDelay = 0.5f; 
     public float sparkSpeed = 5f; // Speed of the straight line move
+    public GameObject Spawner;
 
     private AudioSource _audioSource;
+
+void Update()
+    {
+        
+    }
 
     void Awake()
     {
