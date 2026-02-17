@@ -7,10 +7,10 @@ public class DraggableSpark : MonoBehaviour
     private Rigidbody2D _rb;
     private Camera _mainCamera;
     private bool _isDragging = false;
-    private Vector3 _worldPos; // Moved here so the whole script can see it!
+    private Vector3 _worldPos;
 
     [Header("Settings")]
-    public string emotionType; // Set this to "Happy" or "Sad" in Inspector
+    public string emotionType; 
     public float bounceForce = 3f;
 
     void Awake()
@@ -18,7 +18,7 @@ public class DraggableSpark : MonoBehaviour
         _mainCamera = Camera.main;
         _rb = GetComponent<Rigidbody2D>();
         
-        // Give it an initial "Big Feeling" bounce
+        // Initial "Big Feeling" push
         _rb.linearVelocity = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized * bounceForce;
     }
 
@@ -32,7 +32,6 @@ public class DraggableSpark : MonoBehaviour
         var mouse = Mouse.current;
         var touch = Touchscreen.current;
 
-        // 1. Get the screen position from either Touch or Mouse
         Vector2 screenPos = Vector2.zero;
         bool isPressing = false;
         bool pressStarted = false;
@@ -50,52 +49,61 @@ public class DraggableSpark : MonoBehaviour
             pressStarted = mouse.leftButton.wasPressedThisFrame;
         }
 
-        // 2. Convert that screen point to World Position
         _worldPos = _mainCamera.ScreenToWorldPoint(screenPos);
         _worldPos.z = 0;
 
-        // 3. Logic for Picking up and Moving
         if (pressStarted)
         {
             Collider2D hit = Physics2D.OverlapPoint(_worldPos);
             if (hit != null && hit.transform == transform) 
             {
                 _isDragging = true;
-                _rb.simulated = false; // Turn off physics while holding
+                // IMPORTANT: We keep simulated = true so it can still "hit" the jars!
+                _rb.linearVelocity = Vector2.zero; 
+                _rb.gravityScale = 0;
             }
         }
 
         if (isPressing && _isDragging)
         {
-            transform.position = _worldPos;
+            // Instead of just setting position, we move the Rigidbody
+            _rb.MovePosition(_worldPos);
         }
         else if (!isPressing && _isDragging)
         {
             _isDragging = false;
-            _rb.simulated = true; // Drop it back into physics!
-            // Give it a little toss based on movement
             _rb.linearVelocity = new Vector2(Random.Range(-1, 1), Random.Range(-1, 1)) * bounceForce;
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private float _feedbackCooldown = 1.0f; // Seconds to wait between messages
+private float _lastFeedbackTime = 0f;
+
+private void OnTriggerStay2D(Collider2D collision)
+{
+    if (_isDragging && collision.gameObject.name.Contains("Jar"))
     {
-        // Check if we hit a Jar
-        if (collision.gameObject.name.Contains("Jar"))
+        // 1. Correct Jar
+        if (collision.gameObject.name.Contains(emotionType))
         {
-            if (collision.gameObject.name.Contains(emotionType))
+            GameManager.Instance.AddScore(1);
+            Destroy(gameObject);
+        }
+        // 2. Wrong Jar (with Cooldown)
+        else
+        {
+            if (Time.time > _lastFeedbackTime + _feedbackCooldown)
             {
-                GameManager.Instance.AddScore(1);
-                Destroy(gameObject);
-            }
-            else
-            {
-                // WRONG JAR: Show the text we talked about!
-                ShowFeedback("That doesn't feel right...", Color.red);
-                _rb.linearVelocity = (transform.position - collision.transform.position).normalized * (bounceForce * 2);
+                ShowFeedback("Not that one!", Color.red);
+                _lastFeedbackTime = Time.time; // Reset the timer
+                
+                // Add a small "haptic" bounce away from the wrong jar
+                _rb.AddForce((transform.position - collision.transform.position).normalized * 5f, ForceMode2D.Impulse);
             }
         }
     }
+}
+
 
     void ShowFeedback(string message, Color color)
     {
@@ -103,11 +111,11 @@ public class DraggableSpark : MonoBehaviour
         textObj.transform.position = transform.position + Vector3.up;
         var tmp = textObj.AddComponent<TextMeshPro>();
         tmp.text = message;
-        tmp.fontSize = 5;
+        tmp.fontSize = 4;
         tmp.color = color;
         tmp.alignment = TextAlignmentOptions.Center;
-        // Make it disappear after 1 second
-        Destroy(textObj, 1f);
+        Destroy(textObj, 0.5f);
     }
 }
+
 

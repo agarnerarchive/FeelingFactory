@@ -1,22 +1,35 @@
 using UnityEngine;
-using TMPro; // Needs TextMeshPro
-using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.SceneManagement; // Essential for switching levels
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance; // Easy access for other scripts
+    public static GameManager Instance;
 
     [Header("UI Elements")]
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timerText;
-    public GameObject gameOverPanel;
+    public GameObject gameOverPanel; // The panel that appears at the end
+    public Button restartButton;
+    public Button hubButton;
 
-    [Header("Game Settings")]
+    [Header("Settings")]
     public float timeRemaining = 60f;
     private int _score = 0;
     private bool _isGameActive = true;
 
     void Awake() { Instance = this; }
+
+    void Start()
+    {
+        gameOverPanel.SetActive(false);
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
+
+        // Link the buttons via code (Cleaner for Unity 6)
+        restartButton.onClick.AddListener(RestartGame);
+        hubButton.onClick.AddListener(GoToHub);
+    }
 
     void Update()
     {
@@ -37,26 +50,38 @@ public class GameManager : MonoBehaviour
     public void AddScore(int points)
     {
         if (!_isGameActive) return;
+        if (_score == 0) scoreText.gameObject.SetActive(true);
         _score += points;
-        scoreText.text = "Sparks Sorted: " + _score;
+        scoreText.text = "Score: " + _score;
     }
 
-    void DisplayTime(float timeToDisplay)
+    void DisplayTime(float time)
     {
-        float minutes = Mathf.FloorToInt(timeToDisplay / 60);
-        float seconds = Mathf.FloorToInt(timeToDisplay % 60);
+        float minutes = Mathf.FloorToInt(time / 60);
+        float seconds = Mathf.FloorToInt(time % 60);
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     void EndGame()
     {
         _isGameActive = false;
+        timeRemaining = 0;
         gameOverPanel.SetActive(true);
-        // Here you would send the final _score to the Teacher Dashboard
+        
+        // STOP ALL MOVEMENT: Freeze physics for all sparks
+        Time.timeScale = 0; // This pauses the physics engine
     }
 
     public void RestartGame()
     {
+        Time.timeScale = 1; // RESET time before reloading!
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+    public void GoToHub()
+    {
+        Time.timeScale = 1; 
+        SceneManager.LoadScene("HubWorld"); // Ensure your Hub scene is named this
+    }
 }
+
