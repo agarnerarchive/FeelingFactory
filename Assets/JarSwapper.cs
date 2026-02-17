@@ -1,103 +1,121 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class JarSwapper : MonoBehaviour
 {
     [Header("Setup")]
     public GameObject[] jars; 
-    public GameObject poofEffectPrefab; 
+    public Transform[] spawnPoints; 
+    public float slideSpeed = 18f; 
     public float swapInterval = 10f; 
-    public float warningDuration = 2f; 
+    public float hideDuration = 1.5f;
 
     private Vector3[] _cornerPositions;
+    private SpriteRenderer[] _jarRenderers; // To control transparency
 
     void Start()
     {
         _cornerPositions = new Vector3[jars.Length];
+        _jarRenderers = new SpriteRenderer[jars.Length];
+
         for (int i = 0; i < jars.Length; i++)
         {
             _cornerPositions[i] = jars[i].transform.position;
+            _jarRenderers[i] = jars[i].GetComponent<SpriteRenderer>();
         }
-        StartCoroutine(SwapRoutine());
+        
+        StartCoroutine(SlideSwapRoutine());
     }
 
-    IEnumerator SwapRoutine()
-{
-    while (true)
+    IEnumerator SlideSwapRoutine()
     {
-        // 1. Wait until it's time to swap
-        yield return new WaitForSeconds(swapInterval - warningDuration);
-
-        // 2. QUICK WARNING: Short shake (e.g. 1 second)
-        float elapsed = 0f;
-        while (elapsed < warningDuration)
+        while (true)
         {
+            yield return new WaitForSeconds(swapInterval);
+
+            // 1. EXIT: Find closest point and fade OUT
+            Vector3[] exitTargets = new Vector3[jars.Length];
             for (int i = 0; i < jars.Length; i++)
             {
-                // Very fast jitter
-                jars[i].transform.position = _cornerPositions[i] + (Vector3)Random.insideUnitCircle * 0.15f;
+                exitTargets[i] = GetClosestSpawnPoint(jars[i].transform.position);
             }
-            elapsed += Time.deltaTime;
+            yield return StartCoroutine(MoveAndFade(exitTargets, 0f)); // Fade to 0 (Transparent)
+
+            // 2. SHUFFLE & HIDE
+            ShuffleJars();
+            yield return new WaitForSeconds(hideDuration);
+
+            // 3. ENTRY PREP: Teleport to new closest spawn point
+            for (int i = 0; i < jars.Length; i++)
+            {
+                jars[i].transform.position = GetClosestSpawnPoint(_cornerPositions[i]);
+            }
+
+            // 4. RETURN: Slide back and fade IN
+            yield return StartCoroutine(MoveAndFade(_cornerPositions, 1f)); // Fade to 1 (Opaque)
+        }
+    }
+
+    // Unified Coroutine to handle movement AND transparency
+    IEnumerator MoveAndFade(Vector3[] targets, float targetAlpha)
+    {
+        bool allReached = false;
+        while (!allReached)
+        {
+            allReached = true;
+            for (int i = 0; i < jars.Length; i++)
+            {
+                // Move Position
+                jars[i].transform.position = Vector3.MoveTowards(jars[i].transform.position, targets[i], slideSpeed * Time.deltaTime);
+
+                // Update Transparency (Lerp Alpha)
+                Color c = _jarRenderers[i].color;
+                // We move the alpha value toward the targetAlpha (0 or 1)
+                c.a = Mathf.MoveTowards(c.a, targetAlpha, (slideSpeed / 10f) * Time.deltaTime);
+                _jarRenderers[i].color = c;
+
+                if (Vector3.Distance(jars[i].transform.position, targets[i]) > 0.05f)
+                    allReached = false;
+            }
             yield return null;
         }
-
-        // 3. INSTANT VANISH: Play effect and hide
-        foreach (GameObject jar in jars)
-        {
-            if (poofEffectPrefab != null) {
-                GameObject poof = Instantiate(poofEffectPrefab, jar.transform.position, Quaternion.identity);
-                Destroy(poof, 0.5f); // Ensure the particle cleans up fast
-            }
-            jar.SetActive(false); 
-        }
-
-        // REDUCED PAUSE: Only 0.2 seconds of "blind" time
-        yield return new WaitForSeconds(0.2f); 
-
-        // 4. QUICK RESPAWN: Move and show
-        ShufflePositions();
-        
-        for (int i = 0; i < jars.Length; i++)
-        {
-            jars[i].SetActive(true);
-            _cornerPositions[i] = jars[i].transform.position; // Lock new home
-            
-            if (poofEffectPrefab != null) {
-                GameObject poof = Instantiate(poofEffectPrefab, jars[i].transform.position, Quaternion.identity);
-                Destroy(poof, 0.5f);
-            }
-        }
     }
-}
 
-
-    void ShufflePositions()
+    Vector3 GetClosestSpawnPoint(Vector3 currentPos)
     {
-        // Shuffle the GameObjects themselves in the array to mix them up
-        for (int i = 0; i < jars.Length; i++)
+        float closestDistance = Mathf.Infinity;
+        Vector3 closestPoint = spawnPoints[0].position;
+        foreach (Transform sp in spawnPoints)
         {
-            GameObject temp = jars[i];
-            int randomIndex = Random.Range(i, jars.Length);
-            jars[i] = jars[randomIndex];
-            jars[randomIndex] = temp;
+            float dist = Vector3.Distance(currentPos, sp.position);
+            if (dist < closestDistance)
+            {
+                closestDistance = dist;
+                closestPoint = sp.position;
+            }
         }
+        return closestPoint;
+    }
 
-        // Now place the shuffled jars back into the fixed 4 corner positions
-        // We use a separate array of vectors so the corners never change, only the jars do
-        Vector3[] fixedCorners = new Vector3[] {
-            new Vector3(-7, 4, 0),  // Top Left
-            new Vector3(7, 4, 0),   // Top Right
-            new Vector3(-7, -4, 0), // Bottom Left
-            new Vector3(7, -4, 0)   // Bottom Right
-        };
-
-        // If you want to use the positions you set in the Editor instead of the numbers above:
-        // Use the original _cornerPositions we grabbed in Start()
+    void ShuffleJars()
+    {
+        // When we shuffle the GameObjects, we must also shuffle the Renderers 
+        // so the transparency control stays with the right jar
         for (int i = 0; i < jars.Length; i++)
         {
-            jars[i].transform.position = _cornerPositions[i];
+            int randomIndex = Random.Range(i, jars.Length);
+            
+            GameObject tempJar = jars[i];
+            jars[i] = jars[randomIndex];
+            jars[randomIndex] = tempJar;
+
+            SpriteRenderer tempRen = _jarRenderers[i];
+            _jarRenderers[i] = _jarRenderers[randomIndex];
+            _jarRenderers[randomIndex] = tempRen;
         }
     }
 }
+
+
+
 
