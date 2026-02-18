@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
         if (!_isGameActive) return;
         if (_score == 0) scoreText.gameObject.SetActive(true);
         _score += points;
-        scoreText.text = "Score: " + _score;
+        scoreText.text = _score.ToString();
     }
 
     void DisplayTime(float time)
