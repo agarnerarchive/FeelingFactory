@@ -12,40 +12,43 @@ public class JarSwapper : MonoBehaviour
     [Header("Cover & Shake Settings")]
     public GameObject[] coverObjects;     
     public Transform[] coverSpawnPoints;  
+    public Transform[] coverTargetPositions; 
     public float shakeIntensity = 0.2f;
     public float shakeDuration = 0.5f;
 
-    private Vector3[] _cornerPositions;
-    private Quaternion[] _cornerRotations; 
-    private SpriteRenderer[] _jarRenderers;
+    private Transform[] _mySpawnPoint;
+    private Transform[] _myTargetPoint;
     private Vector3 _originalCamPos;
+
+    // We define your specific corner rotations here as constants
+    private float[] cornerZRotations = new float[] { -45f, -135f, -135f, 45f };
 
     void Start()
     {
-        // 1. Determine the size based on spawnPoints to ensure every corner is filled
-        int count = spawnPoints.Length;
-        _cornerPositions = new Vector3[count];
-        _cornerRotations = new Quaternion[count];
-        _jarRenderers = new SpriteRenderer[jars.Length];
-        _originalCamPos = Camera.main.transform.localPosition;
+        if (Camera.main != null) _originalCamPos = Camera.main.transform.localPosition;
 
-        for (int i = 0; i < count; i++)
-        {
-            // Store the FIXED data for this corner slot
-            _cornerPositions[i] = spawnPoints[i].position;
-            _cornerRotations[i] = spawnPoints[i].rotation; 
+        _mySpawnPoint = new Transform[coverObjects.Length];
+        _myTargetPoint = new Transform[coverObjects.Length];
 
-            // Initialize covers to match their specific corner's rotation and spawn
-            if (i < coverObjects.Length)
-            {
-                coverObjects[i].transform.position = coverSpawnPoints[i].position;
-                coverObjects[i].transform.rotation = _cornerRotations[i];
-            }
-        }
-
+        // 1. INITIAL ALIGNMENT
         for (int i = 0; i < jars.Length; i++)
         {
-            _jarRenderers[i] = jars[i].GetComponent<SpriteRenderer>();
+            // Position jar and force its SPECIFIC corner rotation
+            jars[i].transform.position = spawnPoints[i].position;
+            jars[i].transform.rotation = Quaternion.Euler(0, 0, cornerZRotations[i]);
+        }
+
+        // 2. LOCK COVERS
+        for (int i = 0; i < coverObjects.Length; i++)
+        {
+            _mySpawnPoint[i] = GetClosestTransform(coverObjects[i].transform.position, coverSpawnPoints);
+            _myTargetPoint[i] = GetClosestTransform(coverObjects[i].transform.position, coverTargetPositions);
+            
+            if (_mySpawnPoint[i] != null)
+                coverObjects[i].transform.position = _mySpawnPoint[i].position;
+
+            // Optional: Make covers match the jar rotation
+            coverObjects[i].transform.rotation = Quaternion.Euler(0, 0, cornerZRotations[i]);
         }
         
         StartCoroutine(SlideSwapRoutine());
@@ -57,27 +60,42 @@ public class JarSwapper : MonoBehaviour
         {
             yield return new WaitForSeconds(swapInterval);
 
-            // 1. ALL COVERS SLIDE TO THEIR ASSIGNED CORNER
+            // 1. SLIDE IN
             yield return StartCoroutine(MoveAllCovers(true));
 
-            // 2. SHUFFLE & SNAP
+            // 2. SHAKE & SHUFFLE
             yield return StartCoroutine(ShakeCamera(shakeDuration, shakeIntensity));
             
+            // Only swap the GameObjects in the array
             ShuffleJars();
 
-            // IMPORTANT: Loop through the Jars and put them in the corresponding Corner Slot
+            // 3. TELEPORT & SNAP ROTATION
             for (int i = 0; i < jars.Length; i++)
             {
-                jars[i].transform.position = _cornerPositions[i];
-                jars[i].transform.rotation = _cornerRotations[i];
+                // Whichever jar is now at index [i] goes to that corner's position...
+                jars[i].transform.position = spawnPoints[i].position;
+                
+                // ...and gets forced into that corner's FIXED Z-rotation
+                jars[i].transform.rotation = Quaternion.Euler(0, 0, cornerZRotations[i]);
             }
 
-            // 3. ALL COVERS SLIDE BACK TO THEIR ASSIGNED SPAWN
+            // 4. SLIDE OUT
             yield return StartCoroutine(MoveAllCovers(false));
         }
     }
 
-    IEnumerator MoveAllCovers(bool movingToJar)
+    void ShuffleJars()
+    {
+        for (int i = 0; i < jars.Length; i++)
+        {
+            int randomIndex = Random.Range(i, jars.Length);
+            GameObject tempJar = jars[i];
+            jars[i] = jars[randomIndex];
+            jars[randomIndex] = tempJar;
+        }
+    }
+
+    IEnumerator MoveAllCovers(bool movingToTarget)
     {
         bool allReached = false;
         while (!allReached)
@@ -85,20 +103,37 @@ public class JarSwapper : MonoBehaviour
             allReached = true;
             for (int i = 0; i < coverObjects.Length; i++)
             {
-                // Cover [0] ALWAYS goes to Corner [0], Cover [1] to Corner [1], etc.
-                Vector3 target = movingToJar ? _cornerPositions[i] : coverSpawnPoints[i].position;
-                
+                Transform target = movingToTarget ? _myTargetPoint[i] : _mySpawnPoint[i];
+                if (target == null) continue;
+
                 coverObjects[i].transform.position = Vector3.MoveTowards(
                     coverObjects[i].transform.position, 
-                    target, 
+                    target.position, 
                     slideSpeed * Time.deltaTime
                 );
 
-                if (Vector3.Distance(coverObjects[i].transform.position, target) > 0.01f)
+                if (Vector3.Distance(coverObjects[i].transform.position, target.position) > 0.05f)
                     allReached = false;
             }
             yield return null;
         }
+    }
+
+    Transform GetClosestTransform(Vector3 currentPos, Transform[] options)
+    {
+        Transform bestTarget = null;
+        float closestDistanceSqr = Mathf.Infinity;
+        foreach (Transform potentialTarget in options)
+        {
+            if (potentialTarget == null) continue;
+            float dSqrToTarget = (potentialTarget.position - currentPos).sqrMagnitude;
+            if (dSqrToTarget < closestDistanceSqr)
+            {
+                closestDistanceSqr = dSqrToTarget;
+                bestTarget = potentialTarget;
+            }
+        }
+        return bestTarget;
     }
 
     IEnumerator ShakeCamera(float duration, float magnitude)
@@ -112,22 +147,8 @@ public class JarSwapper : MonoBehaviour
         }
         Camera.main.transform.localPosition = _originalCamPos;
     }
-
-    void ShuffleJars()
-    {
-        for (int i = 0; i < jars.Length; i++)
-        {
-            int randomIndex = Random.Range(i, jars.Length);
-            
-            GameObject tempJar = jars[i];
-            jars[i] = jars[randomIndex];
-            jars[randomIndex] = tempJar;
-
-            SpriteRenderer tempRen = _jarRenderers[i];
-            _jarRenderers[i] = _jarRenderers[randomIndex];
-            _jarRenderers[randomIndex] = tempRen;
-        }
-    }
 }
+
+
 
 

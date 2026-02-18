@@ -466,6 +466,11 @@ MonoBehaviour:
   - {fileID: 619336934}
   - {fileID: 545063552}
   - {fileID: 1579076772}
+  coverTargetPositions:
+  - {fileID: 1074543340}
+  - {fileID: 2124009085}
+  - {fileID: 2068600661}
+  - {fileID: 42304064}
   shakeIntensity: 0.2
   shakeDuration: 0.5
 --- !u!1 &59666971
