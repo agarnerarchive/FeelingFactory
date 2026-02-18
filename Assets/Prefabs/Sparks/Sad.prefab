@@ -10,7 +10,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2048669713523417237, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Name
-      value: Sadness
+      value: Sad
+      objectReference: {fileID: 0}
+    - target: {fileID: 6862830993585495264, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6862830993585495264, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6862830993585495264, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6862830993585495264, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_LocalPosition.x
@@ -57,16 +69,20 @@ PrefabInstance:
       value: Sad
       objectReference: {fileID: 0}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -2893562317998243006, guid: c71b807c1864a804d93e31346f398d79, type: 3}
+    - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Color.b
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Color.g
-      value: 0.09803922
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Color.r
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
