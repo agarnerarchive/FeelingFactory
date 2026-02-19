@@ -9,6 +9,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 260489397796535925, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 260489397796535925, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_LinearDamping
       value: 0
       objectReference: {fileID: 0}
@@ -107,5 +111,27 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2048669713523417237, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -8161119402545437011}
   m_SourcePrefab: {fileID: 100100000, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+--- !u!1 &7726398581844103662 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2048669713523417237, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+  m_PrefabInstance: {fileID: 8599615598194618747}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-8161119402545437011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7726398581844103662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8518bfd9e2cb0554690bb6e105329e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConstantSpinner
+  rotationSpeed: {x: 0, y: 0, z: 20}
+  space: 1
