@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 260489397796535925, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_LinearDamping
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2048669713523417237, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Name
       value: Sad
@@ -63,6 +67,10 @@ PrefabInstance:
     - target: {fileID: 6862830993585495264, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7237758911775727951, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: bounceForce
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7237758911775727951, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: emotionType
