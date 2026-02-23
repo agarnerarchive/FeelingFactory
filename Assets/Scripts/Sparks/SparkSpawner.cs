@@ -78,7 +78,7 @@ public class SparkSpawner : MonoBehaviour
         if (spawnParticlePrefab != null)
         {
             GameObject effect = Instantiate(spawnParticlePrefab, point.position, point.rotation);
-            Destroy(effect, 1f);
+            Destroy(effect, 0.3f);
         }
 
         yield return new WaitForSeconds(warningDelay);

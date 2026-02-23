@@ -13,6 +13,7 @@ public class DraggableSpark : MonoBehaviour
     private Vector3 _worldPos;
     private bool _isExpiring = false;
 
+
     [Header("Settings")]
     public string emotionType; 
     public float bounceForce = 3f;
@@ -101,6 +102,8 @@ private void OnTriggerStay2D(Collider2D collision)
     if (_isDragging && collision.gameObject.name.Contains("Jar"))
     {
         CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
+
+        animator.PlayOneShot.Spark;
 
         // 1. Correct Jar
         if (collision.gameObject.name.Contains(emotionType))
