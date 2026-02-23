@@ -13,6 +13,8 @@ public class DraggableSpark : MonoBehaviour
     private Vector3 _worldPos;
     private bool _isExpiring = false;
 
+    private Animation anim;
+
 
     [Header("Settings")]
     public string emotionType; 
@@ -103,7 +105,8 @@ private void OnTriggerStay2D(Collider2D collision)
     {
         CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
 
-        animator.PlayOneShot.Spark;
+        anim = gameObject.GetComponent<Animation>();
+        anim.Play("Spark");
 
         // 1. Correct Jar
         if (collision.gameObject.name.Contains(emotionType))
