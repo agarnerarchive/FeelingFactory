@@ -92,6 +92,10 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8719826423699053030, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Radius
       value: 0.84063286
@@ -116,7 +120,7 @@ PrefabInstance:
       addedObject: {fileID: 4015226382269305169}
     - targetCorrespondingSourceObject: {fileID: 2048669713523417237, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -4018794319075948359}
+      addedObject: {fileID: 589090440995181286}
   m_SourcePrefab: {fileID: 100100000, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
 --- !u!1 &5661580409700884911 stripped
 GameObject:
@@ -256,19 +260,25 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
---- !u!111 &-4018794319075948359
-Animation:
+--- !u!95 &589090440995181286
+Animator:
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5661580409700884911}
   m_Enabled: 1
-  serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: 0dbba1a993b3e764084711443cdd4973, type: 2}
-  m_Animations: []
-  m_WrapMode: 0
-  m_PlayAutomatically: 0
-  m_AnimatePhysics: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a510c5b510a31e14ea3e8259908a8ee5, type: 2}
+  m_CullingMode: 0
   m_UpdateMode: 0
-  m_CullingType: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

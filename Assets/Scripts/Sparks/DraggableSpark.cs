@@ -9,16 +9,15 @@ public class DraggableSpark : MonoBehaviour
     private Camera _mainCamera;
     private SpriteRenderer _spriteRenderer;
     private TrailRenderer _trailRenderer;
+    private Animator _animator; // Added Animator reference
     private bool _isDragging = false;
     private Vector3 _worldPos;
     private bool _isExpiring = false;
 
-    private Animation anim;
-
-
     [Header("Settings")]
     public string emotionType; 
     public float bounceForce = 3f;
+    public string destroyAnimationTrigger = "OnDestroy"; // Name of your trigger in the Animator
 
     [Header("Feedback Settings")]
     private float _feedbackCooldown = 1.0f; 
@@ -30,20 +29,16 @@ public class DraggableSpark : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _trailRenderer = GetComponent<TrailRenderer>();
+        _animator = GetComponent<Animator>(); // Cache the animator
         
-        // Initial setup for the trail
-        if (_trailRenderer != null) 
-        {
-            _trailRenderer.emitting = false;
-        }
+        if (_trailRenderer != null) _trailRenderer.emitting = false;
 
-        // Initial "Big Feeling" push
         _rb.linearVelocity = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized * bounceForce;
     }
 
     void Update()
     {
-        if (_isExpiring) return; // Stop input if we are currently fading out
+        if (_isExpiring) return;
         HandleInput();
     }
 
@@ -79,7 +74,6 @@ public class DraggableSpark : MonoBehaviour
             {
                 _isDragging = true;
                 if (_trailRenderer != null) _trailRenderer.emitting = true;
-                
                 _rb.linearVelocity = Vector2.zero; 
                 _rb.gravityScale = 0;
             }
@@ -93,65 +87,65 @@ public class DraggableSpark : MonoBehaviour
         {
             _isDragging = false;
             if (_trailRenderer != null) _trailRenderer.emitting = false;
-            
             _rb.linearVelocity = new Vector2(Random.Range(-1, 1), Random.Range(-1, 1)) * bounceForce;
         }
     }
 
-    // Inside OnTriggerStay2D
-private void OnTriggerStay2D(Collider2D collision)
-{
-    if (_isDragging && collision.gameObject.name.Contains("Jar"))
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
-
-        anim = gameObject.GetComponent<Animation>();
-        anim.Play("Spark");
-
-        // 1. Correct Jar
-        if (collision.gameObject.name.Contains(emotionType))
+        if (_isDragging && collision.gameObject.name.Contains("Jar"))
         {
-            if (!_isExpiring) StartCoroutine(FadeOutAndDestroy());
-        }
-        // 2. Wrong Jar
-        else
-        {
-            if (Time.time > _lastFeedbackTime + _feedbackCooldown)
+            CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
+
+            if (collision.gameObject.name.Contains(emotionType))
             {
-                // Trigger a longer, more violent rumble
-                if (shaker != null) shaker.Shake(0.3f, 0.2f); 
-
-                ShowFeedback("Not that one!", Color.red);
-                _lastFeedbackTime = Time.time;
-                _rb.AddForce((transform.position - collision.transform.position).normalized * 8f, ForceMode2D.Impulse);
+                if (!_isExpiring) StartCoroutine(FadeOutAndDestroy());
+            }
+            else
+            {
+                if (Time.time > _lastFeedbackTime + _feedbackCooldown)
+                {
+                    if (shaker != null) shaker.Shake(0.3f, 0.2f); 
+                    ShowFeedback("Not that one!", Color.red);
+                    _lastFeedbackTime = Time.time;
+                    _rb.AddForce((transform.position - collision.transform.position).normalized * 8f, ForceMode2D.Impulse);
+                }
             }
         }
     }
-}
 
-// Inside FadeOutAndDestroy
-private IEnumerator FadeOutAndDestroy()
-{
-    _isExpiring = true;
-    _isDragging = false;
+    private IEnumerator FadeOutAndDestroy()
+    {
+        _isExpiring = true;
+        _isDragging = false;
 
-    // Trigger a quick, subtle "success" pop
-    CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
-    if (shaker != null) shaker.Shake(0.1f, 0.06f); 
+        CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
+        if (shaker != null) shaker.Shake(0.1f, 0.06f); 
 
-    GameManager.Instance.AddScore(1);
+        GameManager.Instance.AddScore(1);
 
-    if (_spriteRenderer != null) _spriteRenderer.enabled = false;
-    _rb.simulated = false; 
+        // 1. Play the animation
+        if (_animator != null)
+        {
+            _animator.SetTrigger(destroyAnimationTrigger);
+            
+            // Wait for the end of the frame so the animator starts the transition
+            yield return null; 
+            
+            // Wait for the length of the current animation state
+            yield return new WaitForSeconds(_animator.GetCurrentAnimatorStateInfo(0).length);
+        }
 
-    if (_trailRenderer != null) _trailRenderer.emitting = false;
-    float trailLife = _trailRenderer != null ? _trailRenderer.time : 0.1f;
-    yield return new WaitForSeconds(trailLife);
+        // 2. Clean up visuals
+        if (_spriteRenderer != null) _spriteRenderer.enabled = false;
+        _rb.simulated = false; 
 
-    Destroy(gameObject);
-}
+        if (_trailRenderer != null) _trailRenderer.emitting = false;
+        float trailLife = _trailRenderer != null ? _trailRenderer.time : 0.1f;
+        yield return new WaitForSeconds(trailLife);
 
-
+        Destroy(gameObject);
+    }
 
     void ShowFeedback(string message, Color color)
     {
@@ -165,6 +159,7 @@ private IEnumerator FadeOutAndDestroy()
         Destroy(textObj, 0.5f);
     }
 }
+
 
 
 
