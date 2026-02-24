@@ -72,6 +72,10 @@ PrefabInstance:
       propertyPath: bounceForce
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 7237758911775727951, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: sparksplash
+      value: 
+      objectReference: {fileID: 290356182400020150, guid: 2016f49e194d1dd4aa9eb1414efd9743, type: 3}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -189,8 +193,8 @@ TrailRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1561756283
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Time: 0.3
