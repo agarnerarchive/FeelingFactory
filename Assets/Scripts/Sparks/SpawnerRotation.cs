@@ -14,4 +14,5 @@ public class ConstantSpinner : MonoBehaviour
         // Multiply by Time.deltaTime to ensure smooth, frame-rate independent motion
         transform.Rotate(rotationSpeed * Time.deltaTime, space);
     }
+
 }
