@@ -9,7 +9,8 @@ public class SparkSpawner : MonoBehaviour
     [Header("Assets")]
     public GameObject[] sparkPrefabs;
     public GameObject spawnParticlePrefab; 
-    public AudioClip spawnSound;           
+    public AudioClip spawnSound;
+    public AudioSource launcher;
     
     [Header("UI Elements")]
     public Slider progressMeter;
@@ -38,6 +39,8 @@ public class SparkSpawner : MonoBehaviour
     void Start()
     {
         StartCoroutine(SpawnLoop());
+        launcher = GetComponent<AudioSource>();
+
     }
 
     void Update()
@@ -70,6 +73,7 @@ public class SparkSpawner : MonoBehaviour
             yield return new WaitForSeconds(spawnInterval);
             Transform point = spawnPoints[Random.Range(0, spawnPoints.Length)];
             StartCoroutine(WarningSequence(point));
+            launcher.Play();
         }
     }
 
@@ -79,6 +83,7 @@ public class SparkSpawner : MonoBehaviour
         {
             GameObject effect = Instantiate(spawnParticlePrefab, point.position, point.rotation);
             Destroy(effect, 0.3f);
+            
         }
 
         yield return new WaitForSeconds(warningDelay);

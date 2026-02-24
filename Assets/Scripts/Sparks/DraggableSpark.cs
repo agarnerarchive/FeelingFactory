@@ -13,6 +13,7 @@ public class DraggableSpark : MonoBehaviour
     private bool _isDragging = false;
     private Vector3 _worldPos;
     private bool _isExpiring = false;
+    AudioSource splash;
 
     [Header("Settings")]
     public string emotionType; 
@@ -30,6 +31,7 @@ public class DraggableSpark : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _trailRenderer = GetComponent<TrailRenderer>();
         _animator = GetComponent<Animator>(); // Cache the animator
+        splash = GetComponent<AudioSource>();
         
         if (_trailRenderer != null) _trailRenderer.emitting = false;
 
@@ -120,7 +122,9 @@ public class DraggableSpark : MonoBehaviour
         _isDragging = false;
 
         CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
-        if (shaker != null) shaker.Shake(0.1f, 0.06f); 
+        if (shaker != null) shaker.Shake(0.1f, 0.06f);
+        splash.Play();
+
 
         GameManager.Instance.AddScore(1);
 
