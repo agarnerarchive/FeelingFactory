@@ -9,7 +9,7 @@ public class DraggableSpark : MonoBehaviour
     private Camera _mainCamera;
     private SpriteRenderer _spriteRenderer;
     private TrailRenderer _trailRenderer;
-    private Animator _animator; // Added Animator reference
+    //private Animator _animator; // Added Animator reference
     private bool _isDragging = false;
     private Vector3 _worldPos;
     private bool _isExpiring = false;
@@ -24,6 +24,14 @@ public class DraggableSpark : MonoBehaviour
     [Header("Feedback Settings")]
     private float _feedbackCooldown = 1.0f; 
     private float _lastFeedbackTime = 0f;
+    
+    [Header("Juice Settings")]
+    public float scaleMultiplier = 1.2f;
+    public float scaleDuration = 0.5f;
+    public float wobbleAmount = 15f; // Max rotation degrees
+    public float wobbleSpeed = 20f;  // Speed of the oscillation
+    private Vector3 _originalScale;
+    private Coroutine _juiceCoroutine;
 
     void Awake()
     {
@@ -31,8 +39,9 @@ public class DraggableSpark : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _trailRenderer = GetComponent<TrailRenderer>();
-        _animator = GetComponent<Animator>(); // Cache the animator
+        //_animator = GetComponent<Animator>(); // Cache the animator
         splash = GetComponent<AudioSource>();
+        _originalScale = transform.localScale;
         
         if (_trailRenderer != null) _trailRenderer.emitting = false;
 
@@ -117,41 +126,101 @@ public class DraggableSpark : MonoBehaviour
         }
     }
 
-    private IEnumerator FadeOutAndDestroy()
+    private void OnCollisionEnter2D(Collision2D collision)
+{
+    if (_isExpiring) return;
+
+    if (_juiceCoroutine != null) StopCoroutine(_juiceCoroutine);
+    _juiceCoroutine = StartCoroutine(PulseAndWobble());
+}
+
+private IEnumerator PulseAndWobble()
+{
+    float elapsed = 0f;
+    
+    // 1. Initial burst: Scale up immediately
+    transform.localScale = _originalScale * scaleMultiplier;
+
+    while (elapsed < scaleDuration)
     {
-        _isExpiring = true;
-        _isDragging = false;
+        elapsed += Time.deltaTime;
+        float percent = elapsed / scaleDuration;
 
-        CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
-        if (shaker != null) shaker.Shake(0.1f, 0.06f);
-        splash.Play();
-      
+        // 2. Smoothly Scale back to normal
+        transform.localScale = Vector3.Lerp(_originalScale * scaleMultiplier, _originalScale, percent);
 
+        // 3. Apply Wobble: Use Sine wave for a "wiggle" that fades out
+        // The (1 - percent) makes the wiggle smaller as the effect ends
+        float zRotation = Mathf.Sin(elapsed * wobbleSpeed) * wobbleAmount * (1 - percent);
+        transform.rotation = Quaternion.Euler(0, 0, zRotation);
 
-        GameManager.Instance.AddScore(1);
-
-        // 1. Play the animation
-        if (_animator != null)
-        {
-            _animator.SetTrigger(destroyAnimationTrigger);
-            
-            // Wait for the end of the frame so the animator starts the transition
-            yield return null; 
-            
-            // Wait for the length of the current animation state
-            yield return new WaitForSeconds(_animator.GetCurrentAnimatorStateInfo(0).length);
-        }
-
-        // 2. Clean up visuals
-        if (_spriteRenderer != null) _spriteRenderer.enabled = false;
-        _rb.simulated = false; 
-
-        if (_trailRenderer != null) _trailRenderer.emitting = false;
-        float trailLife = _trailRenderer != null ? _trailRenderer.time : 0.1f;
-        yield return new WaitForSeconds(trailLife);
-
-        Destroy(gameObject);
+        yield return null;
     }
+
+    // Reset to perfect defaults
+    transform.localScale = _originalScale;
+    transform.rotation = Quaternion.identity;
+}
+
+private IEnumerator PulseScale()
+{
+    // 1. Instant Scale Up
+    transform.localScale = _originalScale * scaleMultiplier;
+
+    // 2. Smoothly Scale Back Down
+    float elapsed = 0f;
+    while (elapsed < scaleDuration)
+    {
+        elapsed += Time.deltaTime;
+        float percent = elapsed / scaleDuration;
+        
+        // Lerp from the current (large) scale back to original
+        transform.localScale = Vector3.Lerp(_originalScale * scaleMultiplier, _originalScale, percent);
+        
+        yield return null; // Wait for next frame
+    }
+
+    // Ensure it's exactly back to original
+    transform.localScale = _originalScale;
+}
+
+
+    private IEnumerator FadeOutAndDestroy()
+{
+    _isExpiring = true;
+    _isDragging = false;
+    GetComponent<Collider2D>().enabled = false; // Disable physics immediately
+
+    // 1. Spawn the Particle Effect at current position
+    if (sparksplash != null)
+    {
+        // Instantiate the prefab
+        GameObject effect = Instantiate(sparksplash, transform.position, Quaternion.identity);
+        
+        // Ensure it cleans itself up after 2 seconds (or use effect.GetComponent<ParticleSystem>().main.duration)
+        Destroy(effect, 1f); 
+    }
+
+    // 2. Play Sound and Shake
+    if (splash != null) splash.Play();
+    CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
+    if (shaker != null) shaker.Shake(0.1f, 0.06f);
+
+    GameManager.Instance.AddScore(1);
+
+    // 3. Hide the spark immediately while the sound/trail finishes
+    if (_spriteRenderer != null) _spriteRenderer.enabled = false;
+    _rb.simulated = false; 
+
+    // 4. Wait for trail to fade before final destruction
+    if (_trailRenderer != null) 
+    {
+        _trailRenderer.emitting = false;
+        yield return new WaitForSeconds(_trailRenderer.time);
+    }
+
+    Destroy(gameObject);
+}
 
     void ShowFeedback(string message, Color color)
     {
