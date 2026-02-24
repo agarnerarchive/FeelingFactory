@@ -14,6 +14,7 @@ public class DraggableSpark : MonoBehaviour
     private Vector3 _worldPos;
     private bool _isExpiring = false;
     AudioSource splash;
+    public GameObject sparksplash;
 
     [Header("Settings")]
     public string emotionType; 
@@ -124,6 +125,7 @@ public class DraggableSpark : MonoBehaviour
         CameraShake shaker = _mainCamera.GetComponent<CameraShake>();
         if (shaker != null) shaker.Shake(0.1f, 0.06f);
         splash.Play();
+      
 
 
         GameManager.Instance.AddScore(1);
