@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections;
  
-public class GameManager : MonoBehaviour
+public class GameManagerConvey : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
+    public static GameManagerConvey Instance { get; private set; }
  
     [Header("Emoji Sequence (drag 4 EmojiData assets here)")]
     public EmojiData[] emojiSequence;
