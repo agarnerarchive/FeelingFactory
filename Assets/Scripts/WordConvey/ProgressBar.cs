@@ -62,7 +62,7 @@ public class ProgressBar : MonoBehaviour
         {
             goalReached = true;
             if (fillImage != null) fillImage.color = completeColor;
-            GameManager.Instance.OnProgressComplete();
+            GameManagerConvey.Instance.OnProgressComplete();
         }
     }
  

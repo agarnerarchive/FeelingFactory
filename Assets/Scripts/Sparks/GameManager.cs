@@ -1,6 +1,6 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.SceneManagement; // Essential for switching levels
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -10,12 +10,12 @@ public class GameManager : MonoBehaviour
     [Header("UI Elements")]
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timerText;
-    public GameObject gameOverPanel; // The panel that appears at the end
+    public GameObject gameOverPanel;
     public Button restartButton;
     public Button hubButton;
 
     [Header("Settings")]
-    public float timeRemaining = 60f;
+    private float _timeElapsed = 0f;
     private int _score = 0;
     private bool _isGameActive = true;
 
@@ -26,33 +26,59 @@ public class GameManager : MonoBehaviour
         gameOverPanel.SetActive(false);
         if (scoreText != null) scoreText.gameObject.SetActive(false);
 
-        // Link the buttons via code (Cleaner for Unity 6)
-        restartButton.onClick.AddListener(RestartGame);
-        hubButton.onClick.AddListener(GoToHub);
+        if (restartButton != null) restartButton.onClick.AddListener(RestartGame);
+        else Debug.LogWarning("GameManager: restartButton is not assigned in the Inspector.");
+
+        if (hubButton != null) hubButton.onClick.AddListener(GoToHub);
+        else Debug.LogWarning("GameManager: hubButton is not assigned in the Inspector.");
     }
 
     void Update()
     {
         if (_isGameActive)
         {
-            if (timeRemaining > 0)
-            {
-                timeRemaining -= Time.deltaTime;
-                DisplayTime(timeRemaining);
-            }
-            else
-            {
-                EndGame();
-            }
+            _timeElapsed += Time.deltaTime;
+            DisplayTime(_timeElapsed);
         }
+    }
+
+    // Returns how many full 30-second intervals have elapsed — used by SparkSpawner
+    public int GetElapsedIntervals()
+    {
+        return Mathf.FloorToInt(_timeElapsed / 30f);
     }
 
     public void AddScore(int points)
     {
         if (!_isGameActive) return;
-        if (_score == 0) scoreText.gameObject.SetActive(true);
+
+        if (scoreText != null && !scoreText.gameObject.activeSelf)
+            scoreText.gameObject.SetActive(true);
+
         _score += points;
+
+        if (_score < 0) _score = 0;
+
         scoreText.text = _score.ToString();
+        Debug.Log("Score Updated: " + _score + " (Added: " + points + ")");
+
+        if (ScoreAnimator.Instance != null)
+        {
+            if (points > 0)
+            {
+                Debug.Log("GameManager: Calling PlayGain()");
+                ScoreAnimator.Instance.PlayGain();
+            }
+            else if (points < 0)
+            {
+                Debug.Log("GameManager: Calling PlayLoss()");
+                ScoreAnimator.Instance.PlayLoss();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: ScoreAnimator.Instance is null!");
+        }
     }
 
     void DisplayTime(float time)
@@ -65,23 +91,20 @@ public class GameManager : MonoBehaviour
     void EndGame()
     {
         _isGameActive = false;
-        timeRemaining = 0;
         gameOverPanel.SetActive(true);
-        
-        // STOP ALL MOVEMENT: Freeze physics for all sparks
-        Time.timeScale = 0; // This pauses the physics engine
+        Time.timeScale = 0;
     }
 
     public void RestartGame()
     {
-        Time.timeScale = 1; // RESET time before reloading!
+        Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GoToHub()
     {
-        Time.timeScale = 1; 
-        SceneManager.LoadScene("HubWorld"); // Ensure your Hub scene is named this
+        Time.timeScale = 1;
+        SceneManager.LoadScene("HubWorld");
     }
 }
 

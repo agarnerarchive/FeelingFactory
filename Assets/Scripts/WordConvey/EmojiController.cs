@@ -84,7 +84,7 @@ public class EmojiController : MonoBehaviour, IDropHandler
             audioSource.PlayOneShot(correctSFX);
  
         // Remove from belt tracking and destroy phrase card
-        GameManager.Instance.conveyorBelt.RemoveFromList(phrase);
+        GameManagerConvey.Instance.conveyorBelt.RemoveFromList(phrase);
         Destroy(phrase.gameObject);
  
         // Award point
@@ -94,7 +94,7 @@ public class EmojiController : MonoBehaviour, IDropHandler
     private void HandleIncorrectDrop(DraggablePhrase phrase)
     {
         // Screen shake
-        GameManager.Instance.screenShake.Shake(0.35f, 20f);
+        GameManagerConvey.Instance.screenShake.Shake(0.35f, 20f);
  
         // Play SFX
         if (incorrectSFX != null && audioSource != null)

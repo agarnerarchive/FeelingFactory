@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Angry
       objectReference: {fileID: 0}
+    - target: {fileID: 2048669713523417237, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: m_TagString
+      value: Spark
+      objectReference: {fileID: 0}
     - target: {fileID: 6862830993585495264, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.3
