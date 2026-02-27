@@ -402,7 +402,7 @@ MonoBehaviour:
   - {fileID: 336275483}
   spawnInterval: 3
   warningDelay: 0
-  sparkSpeed: 4
+  sparkSpeed: 4.1
   sparkLifetime: 5
   intervalReductionPerMinute: 1
   minimumSpawnInterval: 0.5
@@ -6556,16 +6556,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -3752711834126370623, guid: 1830e966189ea424499f8ecdcdebcb94, type: 3}
     - target: {fileID: 5527841479034002427, guid: 4b447321efb725e4b8fdf3dc17c73be2, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527841479034002427, guid: 4b447321efb725e4b8fdf3dc17c73be2, type: 3}
       propertyPath: m_Color.b
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5527841479034002427, guid: 4b447321efb725e4b8fdf3dc17c73be2, type: 3}
       propertyPath: m_Color.g
-      value: 1
+      value: 0.92874163
       objectReference: {fileID: 0}
     - target: {fileID: 5527841479034002427, guid: 4b447321efb725e4b8fdf3dc17c73be2, type: 3}
       propertyPath: m_Color.r
-      value: 1
+      value: 0.5566038
       objectReference: {fileID: 0}
     - target: {fileID: 5527841479034002427, guid: 4b447321efb725e4b8fdf3dc17c73be2, type: 3}
       propertyPath: m_SortingLayer
