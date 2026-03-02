@@ -404,7 +404,7 @@ MonoBehaviour:
   warningDelay: 0
   sparkSpeed: 4.1
   sparkLifetime: 5
-  intervalReductionPerMinute: 1
+  intervalReductionPerMinute: 2
   minimumSpawnInterval: 0.5
 --- !u!4 &52503982
 Transform:
@@ -436,8 +436,8 @@ MonoBehaviour:
   scoreText: {fileID: 786080938}
   timerText: {fileID: 469539269}
   gameOverPanel: {fileID: 202010181}
-  restartButton: {fileID: 0}
-  hubButton: {fileID: 0}
+  restartButton: {fileID: 508023810}
+  hubButton: {fileID: 72531787}
 --- !u!114 &52503984
 MonoBehaviour:
   m_ObjectHideFlags: 0
