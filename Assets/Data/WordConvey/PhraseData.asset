@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55a3294a99d1a034eb58af0b54e8ca25, type: 3}
+  m_Name: PhraseData
+  m_EditorClassIdentifier: Assembly-CSharp::PhraseData
+  phrases:
+  - text: I can do this!
+    isGood: 1
+  - text: I am strong!
+    isGood: 1
+  - text: I'm better than this!
+    isGood: 1
+  - text: I can't do this!
+    isGood: 0
+  - text: I'm useless!
+    isGood: 0
+  - text: I hate myself!
+    isGood: 0
+  - text: You've got this!
+    isGood: 1
+  - text: You are enough!
+    isGood: 1
+  - text: I'm proud of myself!
+    isGood: 1
+  - text: I give up!
+    isGood: 0
+  - text: I'm a failure!
+    isGood: 0
+  - text: I'll never be happy!
+    isGood: 0

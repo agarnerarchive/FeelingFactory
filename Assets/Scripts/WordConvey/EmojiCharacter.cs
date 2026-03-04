@@ -1,5 +1,6 @@
 // Assets/Scripts/EmojiCharacter.cs
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 [RequireComponent(typeof(SpriteRenderer))]
@@ -11,134 +12,117 @@ public class EmojiCharacter : MonoBehaviour
     public Sprite positiveEmoji;
 
     [Header("References")]
-    public SpriteRenderer meterFill;   // the green fill bar
-    public Transform      coverObject; // the cover square Transform
-    public Animator       emojiAnimator;
+    public Slider    meterSlider;
+    public Transform coverObject;
+    public Animator  emojiAnimator;   // ← assign in Inspector
 
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip goodPhraseClip, badPhraseClip, meterFullClip, coverClip;
 
     [Header("Meter Settings")]
-    public float meterFillPerGoodPhrase = 0.25f;  // 4 good = full
-    public float meterMaxHeight         = 3f;     // world units, matches MeterFill scale.y at 100%
+    public int phrasesRequired = 4;
 
     [Header("Timing")]
-    public float positiveDuration   = 2f;
-    public float coverAnimDuration  = 0.4f;
-    public float shakeDuration      = 0.5f;
-    public float shakeStrength      = 0.3f;      // world units
-
-    // Meter fill base position — set this to your MeterFill's bottom-aligned Y
-    [Header("Meter Anchor")]
-    public float meterBottomY = -3.5f;  // world Y of the bottom of the meter bar
+    public float positiveDuration  = 2f;
+    public float coverAnimDuration = 0.4f;
+    public float shakeDuration     = 0.5f;
+    public float shakeStrength     = 0.3f;
 
     private SpriteRenderer sr;
-    private float  currentMeter    = 0f;
-    private bool   isPositive      = false;
-    private bool   isTransitioning = false;
-    private int    emojiIndex      = 0;
+    private int  correctCount    = 0;
+    private bool isPositive      = false;
+    private bool isTransitioning = false;
+    private int  emojiIndex      = 0;
 
     void Awake() => sr = GetComponent<SpriteRenderer>();
 
     void Start()
+{
+    // Guard against empty array
+    if (negativeEmojis == null || negativeEmojis.Length == 0)
     {
-        sr.sprite = negativeEmojis[0];
-        SetMeterFill(0f, instant: true);
-        coverObject.gameObject.SetActive(false);
+        Debug.LogError("EmojiCharacter: No negative emojis assigned!");
+        return;
     }
 
-    public void ReceivePhrase(PhraseCard card)
+    isPositive      = false;   // explicitly set to be safe
+    isTransitioning = false;
+    correctCount    = 0;
+
+    sr.sprite         = negativeEmojis[0];
+    meterSlider.value = 0f;
+    coverObject.gameObject.SetActive(false);
+
+    Debug.Log("EmojiCharacter started correctly.");
+}
+
+public void ReceivePhrase(PhraseCard card)
+{
+    // Temporary debug — remove once working
+    Debug.Log($"ReceivePhrase called. isPositive={isPositive} isTransitioning={isTransitioning}");
+
+    if (isTransitioning || isPositive) return;
+
+    if (card.isGood)
     {
-        if (isTransitioning || isPositive) return;
-
-        if (card.isGood)
-        {
-            PlayClip(goodPhraseClip);
-            currentMeter = Mathf.Clamp01(currentMeter + meterFillPerGoodPhrase);
-            StartCoroutine(AnimateMeter(currentMeter));
-            emojiAnimator?.SetTrigger("Happy");
-            if (currentMeter >= 1f) StartCoroutine(MeterFullSequence());
-        }
-        else
-        {
-            PlayClip(badPhraseClip);
-            emojiAnimator?.SetTrigger("Sad");
-            StartCoroutine(ShakeThis(transform, 0.3f, 0.1f));
-        }
-
-        Destroy(card.gameObject);
+        PlayClip(goodPhraseClip);
+        emojiAnimator?.SetTrigger("Correct");
+        correctCount = Mathf.Min(correctCount + 1, phrasesRequired);
+        StartCoroutine(AnimateMeter((float)correctCount / phrasesRequired));
+        if (correctCount >= phrasesRequired) StartCoroutine(MeterFullSequence());
+    }
+    else
+    {
+        PlayClip(badPhraseClip);
+        emojiAnimator?.SetTrigger("Wrong");
     }
 
-    // ─── Meter Fill ────────────────────────────────────────────────────────
-    // We scale the fill quad on Y and offset its position so it grows upward
-    void SetMeterFill(float t, bool instant = false)
-    {
-        float targetHeight = meterMaxHeight * t;
-        Vector3 targetScale = new Vector3(meterFill.transform.localScale.x, targetHeight, 1f);
-        Vector3 targetPos   = new Vector3(
-            meterFill.transform.position.x,
-            meterBottomY + targetHeight * 0.5f,
-            meterFill.transform.position.z);
+    Destroy(card.gameObject);
+}
 
-        if (instant)
-        {
-            meterFill.transform.localScale = targetScale;
-            meterFill.transform.position   = targetPos;
-        }
-        // Non-instant is handled in AnimateMeter coroutine
-    }
+    // ─── Meter ─────────────────────────────────────────────────────────────
 
-    IEnumerator AnimateMeter(float target)
+    IEnumerator AnimateMeter(float targetValue)
     {
-        float startT  = currentMeter - meterFillPerGoodPhrase;
+        float startValue = meterSlider.value;
         float elapsed = 0f, duration = 0.3f;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Lerp(startT, target, elapsed / duration);
-            float h = meterMaxHeight * t;
-            meterFill.transform.localScale = new Vector3(
-                meterFill.transform.localScale.x, h, 1f);
-            meterFill.transform.position = new Vector3(
-                meterFill.transform.position.x,
-                meterBottomY + h * 0.5f,
-                meterFill.transform.position.z);
+            meterSlider.value = Mathf.Lerp(startValue, targetValue, elapsed / duration);
             yield return null;
         }
-        SetMeterFill(target, instant: true);
+
+        meterSlider.value = targetValue;
     }
 
-    // ─── Round Sequence ────────────────────────────────────────────────────
+    // ─── Round Sequence ─────────────────────────────────────────────────────
+
     IEnumerator MeterFullSequence()
     {
         isTransitioning = true;
         FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
         PlayClip(meterFullClip);
 
-        // 1. Go positive
         isPositive = true;
         sr.sprite = positiveEmoji;
-        emojiAnimator?.SetTrigger("Celebrate");
         yield return new WaitForSeconds(positiveDuration);
 
-        // 2. Cover slams down
         PlayClip(coverClip);
         yield return SlideCover(down: true);
 
-        // 3. Screen shake
         yield return ShakeThis(Camera.main.transform, shakeDuration, shakeStrength);
 
-        // 4. Reset behind cover
         emojiIndex++;
-        currentMeter = 0f;
-        SetMeterFill(0f, instant: true);
+        correctCount = 0;
+        meterSlider.value = 0f;
         isPositive = false;
         sr.sprite = negativeEmojis[emojiIndex % negativeEmojis.Length];
+
         yield return new WaitForSeconds(0.3f);
 
-        // 5. Cover reveals new emoji
         yield return SlideCover(down: false);
 
         isTransitioning = false;
@@ -146,11 +130,12 @@ public class EmojiCharacter : MonoBehaviour
         GameManagerConvey.Instance?.NextRound();
     }
 
+    // ─── Cover ──────────────────────────────────────────────────────────────
+
     IEnumerator SlideCover(bool down)
     {
         coverObject.gameObject.SetActive(true);
 
-        // Cover sits above the emoji when hidden, and on top of the emoji when shown
         float emojiHalfH = transform.localScale.y * 0.5f;
         float coverHalfH = coverObject.localScale.y * 0.5f;
 
@@ -170,6 +155,8 @@ public class EmojiCharacter : MonoBehaviour
         coverObject.position = to;
         if (!down) coverObject.gameObject.SetActive(false);
     }
+
+    // ─── Utilities ──────────────────────────────────────────────────────────
 
     IEnumerator ShakeThis(Transform target, float duration, float strength)
     {
