@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8a8374f526e698c4493ab9cf179b8408
+guid: 90d314459b3c797458bf9e08431abe53
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1570547653895748557
-    second: InstructionEmojiCover_0
+      213: -8421281285875773807
+    second: IMG_0161_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,43 +96,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: InstructionEmojiCover_0
+      name: IMG_0161_0
       rect:
         serializedVersion: 2
-        x: 296
-        y: 638
-        width: 1456
-        height: 1204
+        x: 0
+        y: 0
+        width: 1200
+        height: 600
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 33488bada3b443ae0800000000000000
-      internalID: -1570547653895748557
+      spriteID: 19ecab1d949912b80800000000000000
+      internalID: -8421281285875773807
       vertices: []
       indices: 
       edges: []
@@ -161,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      InstructionEmojiCover_0: -1570547653895748557
+      IMG_0161_0: -8421281285875773807
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

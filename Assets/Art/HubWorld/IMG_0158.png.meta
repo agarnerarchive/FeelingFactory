@@ -1,10 +1,22 @@
 fileFormatVersion: 2
-guid: 8a8374f526e698c4493ab9cf179b8408
+guid: d957cf6c02dc90443bdfbd23bcd88510
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1570547653895748557
-    second: InstructionEmojiCover_0
+      213: -7787045426382084236
+    second: IMG_0158_0
+  - first:
+      213: 4300552442741166807
+    second: IMG_0158_1
+  - first:
+      213: 7323965627408550422
+    second: IMG_0158_2
+  - first:
+      213: -1571244950485888401
+    second: IMG_0158_3
+  - first:
+      213: 763649882262977812
+    second: IMG_0158_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,43 +108,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: InstructionEmojiCover_0
+      name: IMG_0158_0
       rect:
         serializedVersion: 2
-        x: 296
-        y: 638
-        width: 1456
-        height: 1204
+        x: 981
+        y: 1476
+        width: 86
+        height: 6
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +127,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 33488bada3b443ae0800000000000000
-      internalID: -1570547653895748557
+      spriteID: 4776aa6317bdee390800000000000000
+      internalID: -7787045426382084236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: IMG_0158_1
+      rect:
+        serializedVersion: 2
+        x: 916
+        y: 1462
+        width: 220
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d2968f49a1aeab30800000000000000
+      internalID: 4300552442741166807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: IMG_0158_2
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 625
+        width: 1920
+        height: 798
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61a8bd02fe3f3a560800000000000000
+      internalID: 7323965627408550422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: IMG_0158_3
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 575
+        width: 219
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f629927da01d13ae0800000000000000
+      internalID: -1571244950485888401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: IMG_0158_4
+      rect:
+        serializedVersion: 2
+        x: 981
+        y: 566
+        width: 86
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41dbd0d9587099a00800000000000000
+      internalID: 763649882262977812
       vertices: []
       indices: 
       edges: []
@@ -161,7 +235,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      InstructionEmojiCover_0: -1570547653895748557
+      IMG_0158_0: -7787045426382084236
+      IMG_0158_1: 4300552442741166807
+      IMG_0158_2: 7323965627408550422
+      IMG_0158_3: -1571244950485888401
+      IMG_0158_4: 763649882262977812
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
