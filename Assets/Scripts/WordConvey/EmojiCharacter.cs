@@ -18,7 +18,7 @@ public class EmojiCharacter : MonoBehaviour
 
     [Header("Audio")]
     public AudioSource audioSource;
-    public AudioClip goodPhraseClip, badPhraseClip, meterFullClip, coverClip;
+    public AudioClip goodPhraseClip, badPhraseClip, meterFullClip, coverClip, pop, warning, bang, change, power, door;
 
     [Header("Meter Settings")]
     public int phrasesRequired = 4;
@@ -52,7 +52,7 @@ public class EmojiCharacter : MonoBehaviour
 
     sr.sprite         = negativeEmojis[0];
     meterSlider.value = 0f;
-    coverObject.gameObject.SetActive(false);
+    coverObject.gameObject.SetActive(true);
 
     Debug.Log("EmojiCharacter started correctly.");
 }
@@ -68,6 +68,7 @@ public void ReceivePhrase(PhraseCard card)
     {
         PlayClip(goodPhraseClip);
         emojiAnimator?.SetTrigger("Correct");
+        audioSource.PlayOneShot(pop, 0.7f);
         correctCount = Mathf.Min(correctCount + 1, phrasesRequired);
         StartCoroutine(AnimateMeter((float)correctCount / phrasesRequired));
         if (correctCount >= phrasesRequired) StartCoroutine(MeterFullSequence());
@@ -76,9 +77,11 @@ public void ReceivePhrase(PhraseCard card)
     {
         PlayClip(badPhraseClip);
         emojiAnimator?.SetTrigger("Wrong");
-    }
+        audioSource.PlayOneShot(warning, 0.7f);
+        }
+        
 
-    Destroy(card.gameObject);
+        Destroy(card.gameObject);
 }
 
     // ─── Meter ─────────────────────────────────────────────────────────────
@@ -108,9 +111,13 @@ public void ReceivePhrase(PhraseCard card)
 
         isPositive = true;
         sr.sprite = positiveEmoji;
+        audioSource.PlayOneShot(change, 0.7f);
         yield return new WaitForSeconds(positiveDuration);
 
         PlayClip(coverClip);
+        audioSource.PlayOneShot(power, 0.7f);
+        audioSource.PlayOneShot(bang, 0.7f);
+        audioSource.PlayOneShot(door, 0.7f);
         yield return SlideCover(down: true);
 
         yield return ShakeThis(Camera.main.transform, shakeDuration, shakeStrength);
@@ -153,7 +160,8 @@ public void ReceivePhrase(PhraseCard card)
             yield return null;
         }
         coverObject.position = to;
-        if (!down) coverObject.gameObject.SetActive(false);
+        if (!down) coverObject.gameObject.SetActive(true);
+        audioSource.PlayOneShot(door, 0.7f);
     }
 
     // ─── Utilities ──────────────────────────────────────────────────────────
