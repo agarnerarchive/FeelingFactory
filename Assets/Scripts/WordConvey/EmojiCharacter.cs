@@ -147,7 +147,7 @@ public void ReceivePhrase(PhraseCard card)
         float coverHalfH = coverObject.localScale.y * 0.5f;
 
         Vector3 shownPos  = new Vector3(transform.position.x, transform.position.y, transform.position.z - 0.1f);
-        Vector3 hiddenPos = new Vector3(shownPos.x, transform.position.y + emojiHalfH + coverHalfH + 0.1f, shownPos.z);
+        Vector3 hiddenPos = new Vector3(shownPos.x, transform.position.y + emojiHalfH + coverHalfH + 2.5f, shownPos.z);
 
         Vector3 from = down ? hiddenPos : shownPos;
         Vector3 to   = down ? shownPos  : hiddenPos;
