@@ -37,3 +37,15 @@ MonoBehaviour:
     isGood: 0
   - text: I'll never be happy!
     isGood: 0
+  - text: I can do hard things!
+    isGood: 1
+  - text: I am brave, I am kind!
+    isGood: 1
+  - text: You're not good at that!
+    isGood: 0
+  - text: I feel ashamed!
+    isGood: 0
+  - text: I can't do this yet!
+    isGood: 1
+  - text: I'm stupid!
+    isGood: 0
