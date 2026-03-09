@@ -11,7 +11,7 @@ public class DraggableSpark : MonoBehaviour
     private TrailRenderer _trailRenderer;
     private bool _isDragging = false;
     private Vector3 _worldPos;
-    private bool _isExpiring = false;
+    public bool _isExpiring = false;
     private AudioSource _splash;
 
     [Header("References")]

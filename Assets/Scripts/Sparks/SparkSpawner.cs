@@ -14,8 +14,6 @@ public class SparkSpawner : MonoBehaviour
 
     [Header("UI Elements")]
     public Slider progressMeter;
-    public GameObject transitionPanel;
-    public string nextLevelName;
 
     [Header("Spawn Locations")]
     public Transform[] spawnPoints;
@@ -27,21 +25,21 @@ public class SparkSpawner : MonoBehaviour
     public float sparkLifetime = 5f;
 
     [Header("Difficulty Scaling")]
-    [Tooltip("How much the spawn interval decreases per minute elapsed")]
+    [Tooltip("How much the spawn interval decreases per 30 seconds elapsed")]
     public float intervalReductionPerMinute = 0.2f;
     [Tooltip("The fastest the spawner is ever allowed to go")]
     public float minimumSpawnInterval = 0.5f;
 
     private AudioSource _audioSource;
     private List<GameObject> activeSparks = new List<GameObject>();
-    private int _lastMinuteChecked = 0;
+    private int _lastIntervalChecked = 0;
     private float _currentSpawnInterval;
+    private bool _outroTriggered = false;
 
     void Awake()
     {
         _audioSource = gameObject.AddComponent<AudioSource>();
         _audioSource.playOnAwake = false;
-        if (transitionPanel != null) transitionPanel.SetActive(false);
     }
 
     void Start()
@@ -61,21 +59,27 @@ public class SparkSpawner : MonoBehaviour
         if (progressMeter != null)
             progressMeter.value = currentProgress;
 
-        // Transition when progress reaches 1.0 (10 sparks)
-        if (currentProgress >= 1.0f)
+        // Trigger the outro when 10 sparks are on screen
+        if (currentProgress >= 1.0f && !_outroTriggered)
         {
+            _outroTriggered = true;
             StopAllCoroutines();
-            if (transitionPanel != null) transitionPanel.SetActive(true);
+
+            IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include); // true = include inactive objects
+            if (introPanel != null)
+                introPanel.StartOutro();
+            else
+                Debug.LogWarning("SparkSpawner: No IntroPanel found in scene.");
         }
 
-        // Check if a new minute has passed and ramp up the speed
+        // Check if a new 30-second interval has passed and ramp up speed
         if (GameManager.Instance != null)
         {
             int elapsedIntervals = GameManager.Instance.GetElapsedIntervals();
 
-            if (elapsedIntervals > _lastMinuteChecked)
+            if (elapsedIntervals > _lastIntervalChecked)
             {
-                _lastMinuteChecked = elapsedIntervals;
+                _lastIntervalChecked = elapsedIntervals;
                 _currentSpawnInterval = Mathf.Max(
                     minimumSpawnInterval,
                     spawnInterval - (intervalReductionPerMinute * elapsedIntervals)
@@ -118,9 +122,7 @@ public class SparkSpawner : MonoBehaviour
 
     public void LoadNextLevel()
     {
-        SceneManager.LoadScene(nextLevelName);
+        SceneManager.LoadScene("nextLevelName");
     }
 }
-
-
 
