@@ -33,6 +33,12 @@ public class DraggableSpark : MonoBehaviour
     private Vector3 _originalScale;
     private Coroutine _juiceCoroutine;
 
+    [Header("Flick Settings")]
+    public float flickForceMultiplier = 12f;
+    public float maxFlickSpeed = 20f;
+    private Vector3 _previousWorldPos;
+    private Vector3 _flickVelocity;
+
     void Awake()
     {
         _mainCamera = Camera.main;
@@ -86,24 +92,39 @@ public class DraggableSpark : MonoBehaviour
                 if (_trailRenderer != null) _trailRenderer.emitting = true;
                 _rb.linearVelocity = Vector2.zero;
                 _rb.gravityScale = 0;
+                // Reset flick tracking on new drag
+                _previousWorldPos = _worldPos;
+                _flickVelocity = Vector3.zero;
             }
         }
 
         if (isPressing && _isDragging)
         {
+            // Track how fast the finger/mouse is moving for the flick
+            _flickVelocity = (_worldPos - _previousWorldPos) / Time.deltaTime;
+            _previousWorldPos = _worldPos;
             _rb.MovePosition(_worldPos);
         }
         else if (!isPressing && _isDragging)
         {
             _isDragging = false;
             if (_trailRenderer != null) _trailRenderer.emitting = false;
-            _rb.linearVelocity = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * bounceForce;
+
+            // Apply flick velocity on release, clamped to max speed
+            Vector2 flick = _flickVelocity * flickForceMultiplier;
+            flick = Vector2.ClampMagnitude(flick, maxFlickSpeed);
+
+            // Only flick if the player was actually moving — otherwise let it bounce normally
+            if (flick.magnitude > 0.5f)
+                _rb.linearVelocity = flick;
+            else
+                _rb.linearVelocity = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * bounceForce;
         }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (_isExpiring || !_isDragging) return;
+        if (_isExpiring) return;
 
         if (collision.gameObject.name.Contains("Jar"))
         {
@@ -193,7 +214,6 @@ public class DraggableSpark : MonoBehaviour
         Destroy(textObj, 0.5f);
     }
 }
-
 
     
 

@@ -84,6 +84,14 @@ PrefabInstance:
       propertyPath: sparksplash
       value: 
       objectReference: {fileID: 290356182400020150, guid: bc446f08af7da6a4f8ebb66ed1217139, type: 3}
+    - target: {fileID: 7237758911775727951, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: maxFlickSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7237758911775727951, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
+      propertyPath: flickForceMultiplier
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 7531925339261500733, guid: a5a1ac763298ba34489c3cb4d350da90, type: 3}
       propertyPath: m_Sprite
       value: 
