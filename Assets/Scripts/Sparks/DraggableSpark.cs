@@ -122,7 +122,17 @@ public class DraggableSpark : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        HandleJarCollision(collision);
+    }
+
     private void OnTriggerStay2D(Collider2D collision)
+    {
+        HandleJarCollision(collision);
+    }
+
+    private void HandleJarCollision(Collider2D collision)
     {
         if (_isExpiring) return;
 
