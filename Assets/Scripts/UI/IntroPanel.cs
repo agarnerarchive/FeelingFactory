@@ -3,9 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using UnityEngine.SceneManagement;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class IntroPanel : MonoBehaviour
 {
@@ -48,12 +45,6 @@ public class IntroPanel : MonoBehaviour
         if (_buttonText == null)
             Debug.LogWarning("IntroPanel: No TextMeshProUGUI found on the button.");
 
-        // Mark all clips as Legacy so they work with the Animation component
-        MarkAsLegacy(introClipOne);
-        MarkAsLegacy(introClipTwo);
-        MarkAsLegacy(buttonClip);
-        MarkAsLegacy(panelImageClip);
-
         if (GameManager.Instance != null)
             GameManager.Instance.enabled = false;
 
@@ -63,32 +54,32 @@ public class IntroPanel : MonoBehaviour
 
         introPanel.SetActive(true);
 
-        // Set up intro clips
+        // Set up intro clips — reuse existing Animation component if already present
         if (introClipOne != null && introAnimationObjectOne != null)
         {
-            _introAnimationOne = introAnimationObjectOne.AddComponent<Animation>();
-            _introAnimationOne.AddClip(introClipOne, introClipOne.name);
+            _introAnimationOne = introAnimationObjectOne.GetComponent<Animation>() ?? introAnimationObjectOne.AddComponent<Animation>();
+            if (_introAnimationOne.GetClip(introClipOne.name) == null) _introAnimationOne.AddClip(introClipOne, introClipOne.name);
             _introAnimationOne.Play(introClipOne.name);
         }
 
         if (introClipTwo != null && introAnimationObjectTwo != null)
         {
-            _introAnimationTwo = introAnimationObjectTwo.AddComponent<Animation>();
-            _introAnimationTwo.AddClip(introClipTwo, introClipTwo.name);
+            _introAnimationTwo = introAnimationObjectTwo.GetComponent<Animation>() ?? introAnimationObjectTwo.AddComponent<Animation>();
+            if (_introAnimationTwo.GetClip(introClipTwo.name) == null) _introAnimationTwo.AddClip(introClipTwo, introClipTwo.name);
             _introAnimationTwo.Play(introClipTwo.name);
         }
 
         // Set up looping animations
         if (buttonClip != null)
         {
-            _buttonAnimation = button.gameObject.AddComponent<Animation>();
-            _buttonAnimation.AddClip(buttonClip, buttonClip.name);
+            _buttonAnimation = button.gameObject.GetComponent<Animation>() ?? button.gameObject.AddComponent<Animation>();
+            if (_buttonAnimation.GetClip(buttonClip.name) == null) _buttonAnimation.AddClip(buttonClip, buttonClip.name);
         }
 
         if (panelImageClip != null && panelImageObject != null)
         {
-            _panelImageAnimation = panelImageObject.AddComponent<Animation>();
-            _panelImageAnimation.AddClip(panelImageClip, panelImageClip.name);
+            _panelImageAnimation = panelImageObject.GetComponent<Animation>() ?? panelImageObject.AddComponent<Animation>();
+            if (_panelImageAnimation.GetClip(panelImageClip.name) == null) _panelImageAnimation.AddClip(panelImageClip, panelImageClip.name);
         }
 
         PlayLooping(_buttonAnimation, buttonClip);
@@ -264,14 +255,5 @@ public class IntroPanel : MonoBehaviour
         }
 
         SceneManager.LoadScene(nextLevelName);
-    }
-    private void MarkAsLegacy(AnimationClip clip)
-    {
-        if (clip == null) return;
-#if UNITY_EDITOR
-        SerializedObject so = new SerializedObject(clip);
-        so.FindProperty("m_Legacy").boolValue = true;
-        so.ApplyModifiedProperties();
-#endif
     }
 }
