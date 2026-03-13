@@ -13,8 +13,8 @@ public class SquareBreathing2D : MonoBehaviour
     public AudioSource chimeSource;
 
     [Header("Settings")]
-    public float minScale = 1f;
-    public float maxScale = 4f;
+    public float minScale = 0.25f;
+    public float maxScale = 0.3f;
     public Color inhaleColor = new Color(0.2f, 0.6f, 1f); // Blue
     public Color holdColor = new Color(1f, 0.3f, 0.3f);   // Red
     
