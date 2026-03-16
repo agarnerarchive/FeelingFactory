@@ -24,6 +24,18 @@ public class SparkSpawner : MonoBehaviour
     public float sparkSpeed = 5f;
     public float sparkLifetime = 5f;
 
+    [Header("Warning (8+ Sparks)")]
+    [Tooltip("GameObject the warning animation lives on")]
+    public GameObject warningAnimationObject;
+    [Tooltip("Warning AnimationClip to loop when 8+ sparks are on screen")]
+    public AnimationClip warningClip;
+    [Tooltip("Sound to loop when 8+ sparks are on screen")]
+    public AudioClip warningSound;
+
+    private Animation _warningAnimation;
+    private AudioSource _warningAudio;
+    private bool _warningActive = false;
+
     [Header("Difficulty Scaling")]
     [Tooltip("How much the spawn interval decreases per 30 seconds elapsed")]
     public float intervalReductionPerMinute = 0.2f;
@@ -36,6 +48,10 @@ public class SparkSpawner : MonoBehaviour
     private float _currentSpawnInterval;
     private bool _outroTriggered = false;
 
+    [Header("Outro Settings")]
+    [Tooltip("Delay in seconds before the outro panel appears")]
+    public float outroDelay = 1.5f;
+
     void Awake()
     {
         _audioSource = gameObject.AddComponent<AudioSource>();
@@ -47,6 +63,23 @@ public class SparkSpawner : MonoBehaviour
         _currentSpawnInterval = spawnInterval;
         StartCoroutine(SpawnLoop());
         launcher = GetComponent<AudioSource>();
+
+        // Set up warning animation
+        if (warningClip != null && warningAnimationObject != null)
+        {
+            _warningAnimation = warningAnimationObject.GetComponent<Animation>() ?? warningAnimationObject.AddComponent<Animation>();
+            if (_warningAnimation.GetClip(warningClip.name) == null) _warningAnimation.AddClip(warningClip, warningClip.name);
+            _warningAnimation[warningClip.name].wrapMode = WrapMode.Loop;
+        }
+
+        // Set up warning audio on a separate AudioSource
+        if (warningSound != null)
+        {
+            _warningAudio = gameObject.AddComponent<AudioSource>();
+            _warningAudio.clip = warningSound;
+            _warningAudio.loop = true;
+            _warningAudio.playOnAwake = false;
+        }
     }
 
     void Update()
@@ -59,17 +92,32 @@ public class SparkSpawner : MonoBehaviour
         if (progressMeter != null)
             progressMeter.value = currentProgress;
 
+        // Play warning animation and sound when 8 or more sparks are on screen
+        if (activeSparks.Count >= 8 && !_warningActive && !_outroTriggered)
+        {
+            _warningActive = true;
+            if (_warningAnimation != null) { _warningAnimation.enabled = true; _warningAnimation.Play(warningClip.name); }
+            if (_warningAudio != null) _warningAudio.Play();
+        }
+        else if (activeSparks.Count < 8 && _warningActive)
+        {
+            _warningActive = false;
+            if (_warningAnimation != null) { _warningAnimation.Stop(); _warningAnimation.enabled = false; }
+            if (_warningAudio != null) _warningAudio.Stop();
+        }
+
         // Trigger the outro when 10 sparks are on screen
         if (currentProgress >= 1.0f && !_outroTriggered)
         {
             _outroTriggered = true;
             StopAllCoroutines();
 
-            IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include); // true = include inactive objects
-            if (introPanel != null)
-                introPanel.StartOutro();
-            else
-                Debug.LogWarning("SparkSpawner: No IntroPanel found in scene.");
+            // Stop warning animation and sound when game ends
+            _warningActive = false;
+            if (_warningAnimation != null) { _warningAnimation.Stop(); _warningAnimation.enabled = false; }
+            if (_warningAudio != null) _warningAudio.Stop();
+
+            StartCoroutine(OutroDelayRoutine());
         }
 
         // Check if a new 30-second interval has passed and ramp up speed
@@ -120,9 +168,19 @@ public class SparkSpawner : MonoBehaviour
         if (rb != null) rb.linearVelocity = point.up * sparkSpeed;
     }
 
+    private IEnumerator OutroDelayRoutine()
+    {
+        yield return new WaitForSeconds(outroDelay);
+
+        IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
+        if (introPanel != null)
+            introPanel.StartOutro();
+        else
+            Debug.LogWarning("SparkSpawner: No IntroPanel found in scene.");
+    }
+
     public void LoadNextLevel()
     {
         SceneManager.LoadScene("nextLevelName");
     }
 }
-
