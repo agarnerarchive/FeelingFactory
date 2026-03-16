@@ -1,116 +1,188 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class SquareBreathing2D : MonoBehaviour
 {
     [Header("UI Elements")]
     public SpriteRenderer progressRing;
-    public SpriteRenderer ballSprite; // Drag the BreatheBall's SpriteRenderer here
+    public SpriteRenderer ballSprite;
     public TMP_Text instructionText;
 
     [Header("Audio")]
     public AudioSource chimeSource;
 
+    [Header("Outro")]
+    public IntroPanel introPanel; // Drag the GameObject that holds IntroPanel here
+
+    [Header("Phase Durations (seconds)")]
+    public float inhaleDuration = 4f;
+    public float holdInDuration = 4f;
+    public float exhaleDuration = 4f;
+    public float holdOutDuration = 4f;
+
     [Header("Settings")]
     public float minScale = 0.25f;
     public float maxScale = 0.3f;
-    public Color inhaleColor = new Color(0.2f, 0.6f, 1f); // Blue
-    public Color holdColor = new Color(1f, 0.3f, 0.3f);   // Red
-    
+    public int totalCycles = 3;
+    public Color inhaleColor = new Color(0.2f, 0.6f, 1f);
+    public Color holdColor = new Color(1f, 0.3f, 0.3f);
+    public Color completeColor = new Color(0.2f, 0.9f, 0.4f);
+
     private float timer = 0f;
-    private const float stepDuration = 4f;
+    private bool isHoldingButton = false;
+    private int completedCycles = 0;
+    private bool sessionComplete = false;
+    private bool sessionStarted = false;
 
     private enum BreathState { Inhale, HoldIn, Exhale, HoldOut }
     private BreathState currentState = BreathState.Inhale;
 
+    public void OnBreathButtonDown()
+    {
+        if (sessionComplete) return;
+        isHoldingButton = true;
+        sessionStarted = true;
+    }
+
+    public void OnBreathButtonUp()
+    {
+        isHoldingButton = false;
+    }
+
     void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (sessionComplete) return;
+
+        if (isHoldingButton)
         {
             UpdateBreathing();
         }
         else
         {
-            ResetToIdle();
+            HandleButtonReleased();
         }
     }
 
-    void UpdateBreathing()
-{
-    timer += Time.deltaTime;
-    float progress = timer / stepDuration;
-
-    switch (currentState)
+    void HandleButtonReleased()
     {
-        case BreathState.Inhale:
-            instructionText.text = "Breathe In...";
-            // Added 'progress' at the end of the brackets
-            UpdateVisuals(inhaleColor, Mathf.Lerp(minScale, maxScale, progress), progress); 
-            if (timer >= stepDuration) SwitchState(BreathState.HoldIn);
-            break;
+        if (!sessionStarted)
+        {
+            ResetToIdle();
+            return;
+        }
 
-        case BreathState.HoldIn:
-            instructionText.text = "Hold...";
-            // Added 'progress' here too
-            UpdateVisuals(holdColor, maxScale, progress); 
-            if (timer >= stepDuration) SwitchState(BreathState.Exhale);
-            break;
-
-        case BreathState.Exhale:
-            instructionText.text = "Breathe Out...";
-            // Added 'progress' here too
-            UpdateVisuals(inhaleColor, Mathf.Lerp(maxScale, minScale, progress), progress); 
-            if (timer >= stepDuration) SwitchState(BreathState.HoldOut);
-            break;
-
-        case BreathState.HoldOut:
-            instructionText.text = "Wait...";
-            // Added 'progress' here too
-            UpdateVisuals(holdColor, minScale, progress); 
-            if (timer >= stepDuration) SwitchState(BreathState.Inhale);
-            break;
+        instructionText.text = "Hold to continue...";
     }
-}
 
+    void UpdateBreathing()
+    {
+        timer += Time.deltaTime;
+
+        switch (currentState)
+        {
+            case BreathState.Inhale:
+            {
+                float progress = timer / inhaleDuration;
+                instructionText.text = $"Breathe In... ({completedCycles + 1}/{totalCycles})";
+                UpdateVisuals(inhaleColor, Mathf.Lerp(minScale, maxScale, progress), progress);
+                if (timer >= inhaleDuration) SwitchState(BreathState.HoldIn);
+                break;
+            }
+            case BreathState.HoldIn:
+            {
+                float progress = timer / holdInDuration;
+                instructionText.text = $"Hold... ({completedCycles + 1}/{totalCycles})";
+                UpdateVisuals(holdColor, maxScale, progress);
+                if (timer >= holdInDuration) SwitchState(BreathState.Exhale);
+                break;
+            }
+            case BreathState.Exhale:
+            {
+                float progress = timer / exhaleDuration;
+                instructionText.text = $"Breathe Out... ({completedCycles + 1}/{totalCycles})";
+                UpdateVisuals(inhaleColor, Mathf.Lerp(maxScale, minScale, progress), progress);
+                if (timer >= exhaleDuration) SwitchState(BreathState.HoldOut);
+                break;
+            }
+            case BreathState.HoldOut:
+            {
+                float progress = timer / holdOutDuration;
+                instructionText.text = $"Wait... ({completedCycles + 1}/{totalCycles})";
+                UpdateVisuals(holdColor, minScale, progress);
+                if (timer >= holdOutDuration) CompleteOrContinue();
+                break;
+            }
+        }
+    }
+
+    void CompleteOrContinue()
+    {
+        completedCycles++;
+
+        if (completedCycles >= totalCycles)
+        {
+            TriggerOutro();
+        }
+        else
+        {
+            SwitchState(BreathState.Inhale);
+        }
+    }
+
+    void TriggerOutro()
+    {
+        sessionComplete = true;
+        isHoldingButton = false;
+        timer = 0f;
+
+        instructionText.text = "Well done!";
+
+        transform.localScale = new Vector3(minScale, minScale, 1);
+        progressRing.transform.localScale = new Vector3(minScale + 0.8f, minScale + 0.8f, 1);
+        progressRing.color = completeColor;
+
+        if (introPanel != null)
+        {
+            introPanel.StartOutro();
+        }
+        else
+        {
+            Debug.LogWarning("SquareBreathing2D: introPanel is not assigned in the Inspector.");
+        }
+    }
 
     void UpdateVisuals(Color targetColor, float ballScale, float progress)
-{
-    // 1. Scale the Ball (The main breathing object)
-    transform.localScale = new Vector3(ballScale, ballScale, 1);
-
-    // 2. Scale the Ring (The progress indicator)
-    // The ring grows from the ball's size to a bit larger (ballScale + 0.5)
-    float ringScale = ballScale + (progress * 0.8f); 
-    progressRing.transform.localScale = new Vector3(ringScale, ringScale, 1);
-
-    // 3. Change Colours
-    // Only the Ring changes colour to avoid changing the Ball
-    // Ensure you change the variable type in the header to SpriteRenderer!
-    progressRing.color = targetColor; 
-}
+    {
+        transform.localScale = new Vector3(ballScale, ballScale, 1);
+        float ringScale = ballScale + (progress * 0.8f);
+        progressRing.transform.localScale = new Vector3(ringScale, ringScale, 1);
+        progressRing.color = targetColor;
+    }
 
     void SwitchState(BreathState newState)
     {
         timer = 0;
         currentState = newState;
-        
-        // Play the soft chime at every state change
         if (chimeSource != null) chimeSource.Play();
     }
 
     void ResetToIdle()
-{
-    timer = 0;
-    instructionText.text = "Touch and Hold";
-    
-    // Reset Scales
-    transform.localScale = new Vector3(minScale, minScale, 1);
-    progressRing.transform.localScale = new Vector3(minScale, minScale, 1);
-    
-    // Set Ring to a neutral "waiting" colour
-    progressRing.color = Color.gray; 
-    currentState = BreathState.Inhale;
-}
-}
+    {
+        timer = 0;
+        instructionText.text = "Hold the button";
+        transform.localScale = new Vector3(minScale, minScale, 1);
+        progressRing.transform.localScale = new Vector3(minScale, minScale, 1);
+        progressRing.color = Color.gray;
+        currentState = BreathState.Inhale;
+    }
 
+    public void RestartSession()
+    {
+        completedCycles = 0;
+        sessionComplete = false;
+        sessionStarted = false;
+        timer = 0f;
+        currentState = BreathState.Inhale;
+        ResetToIdle();
+    }
+}
