@@ -9,8 +9,9 @@ public class IntroPanel : MonoBehaviour
     [Header("UI References")]
     public GameObject introPanel;
     public Button button;
+    public TextMeshProUGUI buttonText; // Drag the TMP text object directly here
 
-    [Header("Intro Animations (play simultaneously on start)")]
+    [Header("Door Animations (open on start, close on outro end)")]
     public AnimationClip introClipOne;
     public GameObject introAnimationObjectOne;
 
@@ -31,19 +32,56 @@ public class IntroPanel : MonoBehaviour
     [Header("Next Level")]
     public string nextLevelName;
 
-    private TextMeshProUGUI _buttonText;
     private Animation _introAnimationOne;
     private Animation _introAnimationTwo;
     private Animation _buttonAnimation;
     private Animation _panelImageAnimation;
     private int _currentIndex = 0;
     private bool _isOutro = false;
+    private bool _needsInitialText = false;
+
+    void Awake()
+    {
+        // Add Animation components in Awake before any other script's Start runs
+        if (buttonClip != null && button != null)
+        {
+            _buttonAnimation = button.gameObject.GetComponent<Animation>()
+                ?? button.gameObject.AddComponent<Animation>();
+            if (_buttonAnimation.GetClip(buttonClip.name) == null)
+                _buttonAnimation.AddClip(buttonClip, buttonClip.name);
+        }
+
+        if (introClipOne != null && introAnimationObjectOne != null)
+        {
+            _introAnimationOne = introAnimationObjectOne.GetComponent<Animation>()
+                ?? introAnimationObjectOne.AddComponent<Animation>();
+            if (_introAnimationOne.GetClip(introClipOne.name) == null)
+                _introAnimationOne.AddClip(introClipOne, introClipOne.name);
+        }
+
+        if (introClipTwo != null && introAnimationObjectTwo != null)
+        {
+            _introAnimationTwo = introAnimationObjectTwo.GetComponent<Animation>()
+                ?? introAnimationObjectTwo.AddComponent<Animation>();
+            if (_introAnimationTwo.GetClip(introClipTwo.name) == null)
+                _introAnimationTwo.AddClip(introClipTwo, introClipTwo.name);
+        }
+
+        if (panelImageClip != null && panelImageObject != null)
+        {
+            _panelImageAnimation = panelImageObject.GetComponent<Animation>()
+                ?? panelImageObject.AddComponent<Animation>();
+            if (_panelImageAnimation.GetClip(panelImageClip.name) == null)
+                _panelImageAnimation.AddClip(panelImageClip, panelImageClip.name);
+        }
+
+        if (buttonText == null)
+            Debug.LogWarning("IntroPanel: buttonText is not assigned in the Inspector.");
+    }
 
     void Start()
     {
-        _buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
-        if (_buttonText == null)
-            Debug.LogWarning("IntroPanel: No TextMeshProUGUI found on the button.");
+        introPanel.SetActive(true);
 
         if (GameManager.Instance != null)
             GameManager.Instance.enabled = false;
@@ -52,35 +90,9 @@ public class IntroPanel : MonoBehaviour
         if (spawner != null)
             spawner.enabled = false;
 
-        introPanel.SetActive(true);
-
-        // Set up intro clips — reuse existing Animation component if already present
-        if (introClipOne != null && introAnimationObjectOne != null)
-        {
-            _introAnimationOne = introAnimationObjectOne.GetComponent<Animation>() ?? introAnimationObjectOne.AddComponent<Animation>();
-            if (_introAnimationOne.GetClip(introClipOne.name) == null) _introAnimationOne.AddClip(introClipOne, introClipOne.name);
-            _introAnimationOne.Play(introClipOne.name);
-        }
-
-        if (introClipTwo != null && introAnimationObjectTwo != null)
-        {
-            _introAnimationTwo = introAnimationObjectTwo.GetComponent<Animation>() ?? introAnimationObjectTwo.AddComponent<Animation>();
-            if (_introAnimationTwo.GetClip(introClipTwo.name) == null) _introAnimationTwo.AddClip(introClipTwo, introClipTwo.name);
-            _introAnimationTwo.Play(introClipTwo.name);
-        }
-
-        // Set up looping animations
-        if (buttonClip != null)
-        {
-            _buttonAnimation = button.gameObject.GetComponent<Animation>() ?? button.gameObject.AddComponent<Animation>();
-            if (_buttonAnimation.GetClip(buttonClip.name) == null) _buttonAnimation.AddClip(buttonClip, buttonClip.name);
-        }
-
-        if (panelImageClip != null && panelImageObject != null)
-        {
-            _panelImageAnimation = panelImageObject.GetComponent<Animation>() ?? panelImageObject.AddComponent<Animation>();
-            if (_panelImageAnimation.GetClip(panelImageClip.name) == null) _panelImageAnimation.AddClip(panelImageClip, panelImageClip.name);
-        }
+        // Play door open animations ONCE only at level start
+        PlayOnce(_introAnimationOne, introClipOne);
+        PlayOnce(_introAnimationTwo, introClipTwo);
 
         PlayLooping(_buttonAnimation, buttonClip);
         PlayLooping(_panelImageAnimation, panelImageClip);
@@ -92,10 +104,22 @@ public class IntroPanel : MonoBehaviour
             return;
         }
 
-        ShowStep(introTextSequence, 0);
+        // Use Update to set the first line — coroutines can be cancelled if the
+        // GameObject is disabled between frames, but Update cannot
+        _needsInitialText = true;
     }
 
-    // Called by SparkSpawner when 10 sparks are on screen
+    void Update()
+    {
+        if (_needsInitialText)
+        {
+            _needsInitialText = false;
+            string[] sequence = _isOutro ? outroTextSequence : introTextSequence;
+            ShowStep(sequence, 0);
+        }
+    }
+
+    // Called by SquareBreathing2D when all cycles complete
     public void StartOutro()
     {
         _isOutro = true;
@@ -108,14 +132,33 @@ public class IntroPanel : MonoBehaviour
         if (spawner != null)
             spawner.enabled = false;
 
-        // Explode all sparks still on screen
         foreach (DraggableSpark spark in FindObjectsByType<DraggableSpark>(FindObjectsSortMode.None))
         {
             if (!spark._isExpiring)
                 spark.StartCoroutine(spark.FadeOutAndDestroy());
         }
 
+        StartCoroutine(ActivateOutroPanel());
+    }
+
+    private IEnumerator ActivateOutroPanel()
+    {
         introPanel.SetActive(true);
+
+        // Wait one full frame for Unity's reactivation cycle to finish
+        yield return null;
+
+        // Kill any door animations that auto-played on reactivation
+        if (_introAnimationOne != null)
+        {
+            _introAnimationOne.Stop();
+            _introAnimationOne.enabled = false;
+        }
+        if (_introAnimationTwo != null)
+        {
+            _introAnimationTwo.Stop();
+            _introAnimationTwo.enabled = false;
+        }
 
         PlayLooping(_buttonAnimation, buttonClip);
         PlayLooping(_panelImageAnimation, panelImageClip);
@@ -124,17 +167,20 @@ public class IntroPanel : MonoBehaviour
         {
             Debug.LogWarning("IntroPanel: outroTextSequence is empty.");
             StartCoroutine(PlayReverseAndLoadLevel());
-            return;
+            yield break;
         }
 
-        ShowStep(outroTextSequence, 0);
+        // Flag Update to write the first outro line next frame
+        _needsInitialText = true;
     }
 
     // Hook this to your button's OnClick event in the Inspector
     public void OnButtonPressed()
     {
-        _currentIndex++;
         string[] sequence = _isOutro ? outroTextSequence : introTextSequence;
+        Debug.Log($"IntroPanel: Button pressed. _currentIndex before increment = {_currentIndex}, sequence length = {sequence.Length}, _isOutro = {_isOutro}");
+
+        _currentIndex++;
 
         if (_currentIndex < sequence.Length)
         {
@@ -142,6 +188,7 @@ public class IntroPanel : MonoBehaviour
         }
         else
         {
+            Debug.Log("IntroPanel: Reached end of sequence.");
             if (_isOutro)
             {
                 button.interactable = false;
@@ -156,11 +203,30 @@ public class IntroPanel : MonoBehaviour
 
     private void ShowStep(string[] sequence, int index)
     {
-        if (_buttonText != null)
-            _buttonText.text = sequence[index];
+        Debug.Log($"IntroPanel: ShowStep called. index = {index}, text = '{sequence[index]}'");
+        if (buttonText != null)
+            buttonText.text = sequence[index];
+        else
+            Debug.LogWarning("IntroPanel: buttonText is not assigned in the Inspector.");
     }
 
-    // Safely plays a clip looping — re-adds the clip if it was lost when the panel was inactive
+    private void PlayOnce(Animation anim, AnimationClip clip)
+    {
+        if (anim == null || clip == null) return;
+
+        if (anim.GetClip(clip.name) == null)
+            anim.AddClip(clip, clip.name);
+
+        AnimationState state = anim[clip.name];
+        if (state == null) return;
+
+        anim.enabled = true;
+        state.speed = 1f;
+        state.time = 0f;
+        state.wrapMode = WrapMode.Once;
+        anim.Play(clip.name);
+    }
+
     private void PlayLooping(Animation anim, AnimationClip clip)
     {
         if (anim == null || clip == null) return;
@@ -182,8 +248,6 @@ public class IntroPanel : MonoBehaviour
 
     private void CloseIntroPanel()
     {
-        if (_introAnimationOne != null) _introAnimationOne.Stop();
-        if (_introAnimationTwo != null) _introAnimationTwo.Stop();
         if (_buttonAnimation != null) _buttonAnimation.Stop();
         if (_panelImageAnimation != null) _panelImageAnimation.Stop();
 
@@ -202,16 +266,16 @@ public class IntroPanel : MonoBehaviour
         if (_buttonAnimation != null) _buttonAnimation.Stop();
         if (_panelImageAnimation != null) _panelImageAnimation.Stop();
 
-        // Calculate wait time directly from clip assets — never 0 even if AnimationState fails
         float longestClip = 0f;
         if (introClipOne != null) longestClip = Mathf.Max(longestClip, introClipOne.length);
         if (introClipTwo != null) longestClip = Mathf.Max(longestClip, introClipTwo.length);
 
-        Debug.Log($"IntroPanel: Reverse animation duration = {longestClip}s, loading '{nextLevelName}'");
-
+        // Re-enable and play door close (reverse) animations
         if (_introAnimationOne != null && introClipOne != null)
         {
+            _introAnimationOne.enabled = true;
             _introAnimationOne.Stop();
+
             if (_introAnimationOne.GetClip(introClipOne.name) == null)
                 _introAnimationOne.AddClip(introClipOne, introClipOne.name);
 
@@ -220,16 +284,16 @@ public class IntroPanel : MonoBehaviour
             {
                 stateOne.speed = -1f;
                 stateOne.time = introClipOne.length;
-                _introAnimationOne.enabled = true;
                 _introAnimationOne.Play(introClipOne.name);
-                Debug.Log("IntroPanel: introClipOne playing in reverse");
             }
             else Debug.LogWarning("IntroPanel: AnimationState for introClipOne is null");
         }
 
         if (_introAnimationTwo != null && introClipTwo != null)
         {
+            _introAnimationTwo.enabled = true;
             _introAnimationTwo.Stop();
+
             if (_introAnimationTwo.GetClip(introClipTwo.name) == null)
                 _introAnimationTwo.AddClip(introClipTwo, introClipTwo.name);
 
@@ -238,14 +302,11 @@ public class IntroPanel : MonoBehaviour
             {
                 stateTwo.speed = -1f;
                 stateTwo.time = introClipTwo.length;
-                _introAnimationTwo.enabled = true;
                 _introAnimationTwo.Play(introClipTwo.name);
-                Debug.Log("IntroPanel: introClipTwo playing in reverse");
             }
             else Debug.LogWarning("IntroPanel: AnimationState for introClipTwo is null");
         }
 
-        // Always wait the full clip length regardless of whether states were found
         yield return new WaitForSeconds(longestClip);
 
         if (string.IsNullOrEmpty(nextLevelName))
