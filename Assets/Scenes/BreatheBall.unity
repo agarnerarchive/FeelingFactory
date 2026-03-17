@@ -534,7 +534,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 7822b57d3faf54a40a8088a18db4cbd3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1687,9 +1687,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Welcome to the factory floor!
-
-'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 53525aff70b7eb3479acc408c235535b, type: 2}
   m_sharedMaterial: {fileID: -6642241030639058599, guid: 53525aff70b7eb3479acc408c235535b, type: 2}
@@ -2228,6 +2226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IntroPanel
   introPanel: {fileID: 1853282847}
   button: {fileID: 331407544}
+  buttonText: {fileID: 1631011958}
   introClipOne: {fileID: 7400000, guid: 6b684fd85c3c9294a8db180b8aa8df10, type: 2}
   introAnimationObjectOne: {fileID: 623174934}
   introClipTwo: {fileID: 7400000, guid: f31239e69e541294fb2690ec5ecaeeb4, type: 2}
@@ -2236,13 +2235,14 @@ MonoBehaviour:
   panelImageClip: {fileID: 7400000, guid: a82d4fde85a667a4681e0c07257967e6, type: 2}
   panelImageObject: {fileID: 697968586}
   introTextSequence:
-  - It seem's you got overwhelmed!
+  - It seem's you got a little overwhelmed!
   - It's ok we can try to fix that!
   - Follow the on screen instructions!
-  - Learn the breathing technique!
+  - To learn a coping technique!
   outroTextSequence:
   - You learned a breathing technique!
   - You can use it when youre overwhelmed!
+  - Are you feeling relaxed? Great!
   - Let's move on to another game!
   nextLevelName: WordConvey
 --- !u!114 &1853282850
