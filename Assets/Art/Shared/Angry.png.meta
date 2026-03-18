@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c81302785d1f63c4886b0aa3a11c3782
+guid: 48b10698de3b67e47bb1109729cb7c8d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6485572567778022890
-    second: SadNew_0
+      213: 621222158458474870
+    second: Angry_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SadNew_0
+      name: Angry_0
       rect:
         serializedVersion: 2
-        x: 249
-        y: 445
-        width: 1550
-        height: 1292
+        x: 29
+        y: 97
+        width: 544
+        height: 459
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 61aa2949c1e9ef5a0800000000000000
-      internalID: -6485572567778022890
+      spriteID: 671d48103460f9800800000000000000
+      internalID: 621222158458474870
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SadNew_0: -6485572567778022890
+      Angry_0: 621222158458474870
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
