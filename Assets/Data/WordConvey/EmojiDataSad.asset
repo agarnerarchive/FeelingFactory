@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa85efe0f8a62b742822e04b6e9ba74d, type: 3}
+  m_Name: EmojiDataSad
+  m_EditorClassIdentifier: Assembly-CSharp::EmojiData
+  negativeSprite: {fileID: 21300000, guid: c81302785d1f63c4886b0aa3a11c3782, type: 3}
+  positiveSprite: {fileID: 21300000, guid: a48be6eec3be8904b8f68de97e10aae3, type: 3}
+  goodPhrases:
+  - You are loved!
+  - This feeling will pass!
+  - You matter to people!
+  - It's okay to feel sad!
+  badPhrases:
+  - Nobody cares!
+  - Things never get better!
+  - You're all alone!
+  - Youre a burden!
+  idleClip: {fileID: 7400000, guid: 1022adf502affb74ba9e165e3dfc0917, type: 2}
+  correctClip: {fileID: 7400000, guid: 290540d78747bb74ba478d379fbee7a9, type: 2}
+  wrongClip: {fileID: 7400000, guid: c5184a937b1bb1e47825ee008a500d35, type: 2}

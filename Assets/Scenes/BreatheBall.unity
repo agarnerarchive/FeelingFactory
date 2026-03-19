@@ -326,7 +326,6 @@ GameObject:
   - component: {fileID: 331407546}
   - component: {fileID: 331407545}
   - component: {fileID: 331407544}
-  - component: {fileID: 331407543}
   m_Layer: 5
   m_Name: InstructionButton
   m_TagString: Untagged
@@ -354,28 +353,6 @@ RectTransform:
   m_AnchoredPosition: {x: -27, y: -526}
   m_SizeDelta: {x: 800, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!95 &331407543
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 331407541}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: bb8452080b4cefe4392684e7645d2633, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &331407544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -664,7 +641,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!4 &621105971
 Transform:
@@ -1687,7 +1664,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: It seems you got a little overwhelmed!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 53525aff70b7eb3479acc408c235535b, type: 2}
   m_sharedMaterial: {fileID: -6642241030639058599, guid: 53525aff70b7eb3479acc408c235535b, type: 2}

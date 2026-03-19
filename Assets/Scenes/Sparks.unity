@@ -414,6 +414,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IntroPanel
   introPanel: {fileID: 37924227}
   button: {fileID: 827939128}
+  buttonText: {fileID: 1758269846}
   introClipOne: {fileID: 7400000, guid: 6b684fd85c3c9294a8db180b8aa8df10, type: 2}
   introAnimationObjectOne: {fileID: 792085768}
   introClipTwo: {fileID: 7400000, guid: f31239e69e541294fb2690ec5ecaeeb4, type: 2}
@@ -518,6 +519,7 @@ MonoBehaviour:
   warningSound: {fileID: 8300000, guid: 364ad1df0abb94f4abfda220579faa30, type: 3}
   intervalReductionPerMinute: 2
   minimumSpawnInterval: 0.5
+  outroDelay: 1.5
 --- !u!4 &52503982
 Transform:
   m_ObjectHideFlags: 0

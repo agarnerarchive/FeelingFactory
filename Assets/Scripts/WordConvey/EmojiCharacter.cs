@@ -2,23 +2,26 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
 public class EmojiCharacter : MonoBehaviour
 {
-    [Header("Sprites")]
-    public Sprite[] negativeEmojis;
-    public Sprite positiveEmoji;
+    [Header("Emoji Data (assign all 3 in order)")]
+    public EmojiData[] emojiSequence;
 
     [Header("References")]
     public Slider    meterSlider;
     public Transform coverObject;
-    public Animator  emojiAnimator;   // ← assign in Inspector
+    public Animator  emojiAnimator;
+
+    [Header("Base Animator Controller")]
+    public RuntimeAnimatorController baseController;
 
     [Header("Audio")]
     public AudioSource audioSource;
-    public AudioClip goodPhraseClip, badPhraseClip, meterFullClip, coverClip, pop, warning, bang, change, power, door;
+    public AudioClip goodPhraseClip, badPhraseClip, meterFullClip, coverClip;
 
     [Header("Meter Settings")]
     public int phrasesRequired = 4;
@@ -29,75 +32,108 @@ public class EmojiCharacter : MonoBehaviour
     public float shakeDuration     = 0.5f;
     public float shakeStrength     = 0.3f;
 
-    private SpriteRenderer sr;
+    private SpriteRenderer            sr;
+    private AnimatorOverrideController overrideController;
+    private int  currentIndex    = 0;
     private int  correctCount    = 0;
     private bool isPositive      = false;
     private bool isTransitioning = false;
-    private int  emojiIndex      = 0;
 
-    void Awake() => sr = GetComponent<SpriteRenderer>();
+    EmojiData Current => emojiSequence[currentIndex % emojiSequence.Length];
+
+    void Awake()
+    {
+        sr = GetComponent<SpriteRenderer>();
+
+        // Set sprite immediately so it never flickers
+        if (emojiSequence != null && emojiSequence.Length > 0)
+            sr.sprite = emojiSequence[0].negativeSprite;
+    }
 
     void Start()
 {
-    // Guard against empty array
-    if (negativeEmojis == null || negativeEmojis.Length == 0)
+    if (emojiSequence == null || emojiSequence.Length == 0)
     {
-        Debug.LogError("EmojiCharacter: No negative emojis assigned!");
+        Debug.LogError("EmojiCharacter: No EmojiData assigned!");
         return;
     }
 
-    isPositive      = false;   // explicitly set to be safe
+    // Set up override controller
+    overrideController = new AnimatorOverrideController(baseController);
+    emojiAnimator.runtimeAnimatorController = overrideController;
+
+    isPositive      = false;
     isTransitioning = false;
     correctCount    = 0;
 
-    sr.sprite         = negativeEmojis[0];
+    sr.sprite         = Current.negativeSprite;
     meterSlider.value = 0f;
     coverObject.gameObject.SetActive(true);
 
-    Debug.Log("EmojiCharacter started correctly.");
+    FindFirstObjectByType<ConveyorBelt>()?.SetEmojiData(Current);
+
+    // Apply clips last so animator is fully ready
+    ApplyAnimationClips(Current);
+}
+    // ─── Clip Swapping ──────────────────────────────────────────────────────
+
+    void ApplyAnimationClips(EmojiData data)
+{
+    if (emojiAnimator == null || overrideController == null || data == null) return;
+
+    if (data.idleClip    != null) overrideController["Base_Idle"]    = data.idleClip;
+    if (data.correctClip != null) overrideController["Base_Correct"] = data.correctClip;
+    if (data.wrongClip   != null) overrideController["Base_Wrong"]   = data.wrongClip;
+    if (data.idleClip    != null) overrideController["Base_SpawnIn"] = data.idleClip;
+
+    StartCoroutine(PlayIdleNextFrame());
 }
 
-public void ReceivePhrase(PhraseCard card)
+// Wait one frame so the override controller finishes applying
+// before telling the animator to play
+IEnumerator PlayIdleNextFrame()
 {
-    // Temporary debug — remove once working
-    Debug.Log($"ReceivePhrase called. isPositive={isPositive} isTransitioning={isTransitioning}");
+    yield return null;
+    emojiAnimator.Rebind();
+    emojiAnimator.Update(0f);
+    emojiAnimator.Play("Idle", 0, 0f);
+}
+    // ─── Phrase Receiving ───────────────────────────────────────────────────
 
-    if (isTransitioning || isPositive) return;
+    public void ReceivePhrase(PhraseCard card)
+    {
+        if (isTransitioning || isPositive) return;
 
-    if (card.isGood)
-    {
-        PlayClip(goodPhraseClip);
-        emojiAnimator?.SetTrigger("Correct");
-        audioSource.PlayOneShot(pop, 0.7f);
-        correctCount = Mathf.Min(correctCount + 1, phrasesRequired);
-        StartCoroutine(AnimateMeter((float)correctCount / phrasesRequired));
-        if (correctCount >= phrasesRequired) StartCoroutine(MeterFullSequence());
-    }
-    else
-    {
-        PlayClip(badPhraseClip);
-        emojiAnimator?.SetTrigger("Wrong");
-        audioSource.PlayOneShot(warning, 0.7f);
+        if (card.isGood)
+        {
+            PlayClip(goodPhraseClip);
+            emojiAnimator?.SetTrigger("Correct");
+            correctCount = Mathf.Min(correctCount + 1, phrasesRequired);
+            StartCoroutine(AnimateMeter((float)correctCount / phrasesRequired));
+            if (correctCount >= phrasesRequired) StartCoroutine(MeterFullSequence());
         }
-        
+        else
+        {
+            PlayClip(badPhraseClip);
+            emojiAnimator?.SetTrigger("Wrong");
+        }
 
         Destroy(card.gameObject);
-}
+    }
 
-    // ─── Meter ─────────────────────────────────────────────────────────────
+    // ─── Meter ──────────────────────────────────────────────────────────────
 
     IEnumerator AnimateMeter(float targetValue)
     {
         float startValue = meterSlider.value;
-        float elapsed = 0f, duration = 0.3f;
+        float elapsed    = 0f, duration = 0.3f;
 
         while (elapsed < duration)
         {
-            elapsed += Time.deltaTime;
-            meterSlider.value = Mathf.Lerp(startValue, targetValue, elapsed / duration);
+            elapsed           += Time.deltaTime;
+            meterSlider.value  = Mathf.Lerp(startValue, targetValue, elapsed / duration);
             yield return null;
         }
-
         meterSlider.value = targetValue;
     }
 
@@ -109,27 +145,34 @@ public void ReceivePhrase(PhraseCard card)
         FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
         PlayClip(meterFullClip);
 
+        // Show positive sprite
         isPositive = true;
-        sr.sprite = positiveEmoji;
-        audioSource.PlayOneShot(change, 0.7f);
+        sr.sprite  = Current.positiveSprite;
         yield return new WaitForSeconds(positiveDuration);
 
+        // Cover slams down
         PlayClip(coverClip);
-        audioSource.PlayOneShot(power, 0.7f);
-        audioSource.PlayOneShot(bang, 0.7f);
-        audioSource.PlayOneShot(door, 0.7f);
         yield return SlideCover(down: true);
 
+        // Screen shake
         yield return ShakeThis(Camera.main.transform, shakeDuration, shakeStrength);
 
-        emojiIndex++;
-        correctCount = 0;
+        // Advance to next emoji
+        currentIndex++;
+        correctCount      = 0;
         meterSlider.value = 0f;
-        isPositive = false;
-        sr.sprite = negativeEmojis[emojiIndex % negativeEmojis.Length];
+        isPositive        = false;
+        sr.sprite         = Current.negativeSprite;
+
+        // Swap in the new emoji's animation clips
+        ApplyAnimationClips(Current);
+
+        // Tell conveyor to use new emoji's phrases
+        FindFirstObjectByType<ConveyorBelt>()?.SetEmojiData(Current);
 
         yield return new WaitForSeconds(0.3f);
 
+        // Cover reveals new emoji
         yield return SlideCover(down: false);
 
         isTransitioning = false;
@@ -146,8 +189,8 @@ public void ReceivePhrase(PhraseCard card)
         float emojiHalfH = transform.localScale.y * 0.5f;
         float coverHalfH = coverObject.localScale.y * 0.5f;
 
-        Vector3 shownPos  = new Vector3(transform.position.x, transform.position.y, transform.position.z - 0.1f);
-        Vector3 hiddenPos = new Vector3(shownPos.x, transform.position.y + emojiHalfH + coverHalfH + 3.5f, shownPos.z);
+        Vector3 shownPos  = new Vector3(transform.position.x, transform.position.y, transform.position.z - 5.0f);
+        Vector3 hiddenPos = new Vector3(shownPos.x, transform.position.y + emojiHalfH + coverHalfH + 5.0f, shownPos.z);
 
         Vector3 from = down ? hiddenPos : shownPos;
         Vector3 to   = down ? shownPos  : hiddenPos;
@@ -161,7 +204,6 @@ public void ReceivePhrase(PhraseCard card)
         }
         coverObject.position = to;
         if (!down) coverObject.gameObject.SetActive(true);
-        audioSource.PlayOneShot(door, 0.7f);
     }
 
     // ─── Utilities ──────────────────────────────────────────────────────────
@@ -173,7 +215,7 @@ public void ReceivePhrase(PhraseCard card)
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float s = strength * (1f - elapsed / duration);
+            float s  = strength * (1f - elapsed / duration);
             target.position = origin + (Vector3)(Random.insideUnitCircle * s);
             yield return null;
         }

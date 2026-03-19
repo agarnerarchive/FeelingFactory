@@ -109,15 +109,15 @@ public class IntroPanel : MonoBehaviour
         _needsInitialText = true;
     }
 
-    void Update()
+    void LateUpdate()
+{
+    if (_needsInitialText)
     {
-        if (_needsInitialText)
-        {
-            _needsInitialText = false;
-            string[] sequence = _isOutro ? outroTextSequence : introTextSequence;
-            ShowStep(sequence, 0);
-        }
+        _needsInitialText = false;
+        string[] sequence = _isOutro ? outroTextSequence : introTextSequence;
+        ShowStep(sequence, 0);
     }
+}
 
     // Called by SquareBreathing2D when all cycles complete
     public void StartOutro()
