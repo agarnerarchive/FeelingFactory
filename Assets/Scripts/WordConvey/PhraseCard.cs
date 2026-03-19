@@ -7,46 +7,39 @@ using TMPro;
 public class PhraseCard : MonoBehaviour
 {
     [Header("References")]
-    public TextMeshPro label;          // TextMeshPro (3D), NOT TextMeshProUGUI
+    public TextMeshPro label;
 
     [Header("Colors")]
-    public Color neutralColor  = new Color(0.95f, 0.95f, 0.95f);
-    public Color goodColor     = new Color(0.6f,  1f,    0.65f);
-    public Color badColor      = new Color(1f,    0.55f, 0.55f);
+    public Color neutralColor = new Color(0.95f, 0.95f, 0.95f);
 
-    // State
     [HideInInspector] public bool isGood;
-    [HideInInspector] public bool isDragging;
 
     private SpriteRenderer sr;
-    private ConveyorBelt conveyor;
-    private Vector3 dragOffset;
-    private Vector3 homePosition;          // position when not being dragged
-    private bool isReturning = false;
+    private ConveyorBelt   conveyor;
+    private Vector3        dragOffset;
+    private Vector3        homePosition;
+    private bool           isReturning = false;
 
     void Awake() => sr = GetComponent<SpriteRenderer>();
 
-    public void Setup(PhraseData.Phrase phrase, ConveyorBelt belt)
+    // Called by ConveyorBelt with raw text + isGood flag
+    public void SetupDirect(string text, bool good, ConveyorBelt belt)
     {
-        isGood    = phrase.isGood;
-        conveyor  = belt;
-        label.text = phrase.text;
-        sr.color  = neutralColor;
+        isGood       = good;
+        conveyor     = belt;
+        label.text   = text;
+        sr.color     = neutralColor;
         homePosition = transform.position;
-
-        // Sorting order so cards draw above belt
-        sr.sortingOrder = 2;
+        sr.sortingOrder    = 2;
         label.sortingOrder = 3;
     }
 
-    // Called by InputManager
     public void BeginDrag(Vector3 worldPos)
     {
-        isDragging  = true;
-        isReturning = false;
-        dragOffset  = transform.position - worldPos;
+        isReturning  = false;
+        dragOffset   = transform.position - worldPos;
         homePosition = transform.position;
-        sr.sortingOrder = 10;  // draw on top while dragging
+        sr.sortingOrder    = 10;
         label.sortingOrder = 11;
         conveyor?.PauseCard(this);
     }
@@ -61,12 +54,10 @@ public class PhraseCard : MonoBehaviour
 
     public void EndDrag()
     {
-        isDragging = false;
-        sr.sortingOrder = 2;
+        sr.sortingOrder    = 2;
         label.sortingOrder = 3;
     }
 
-    // Called when card was NOT accepted — slide back to belt
     public void ReturnToBelt()
     {
         isReturning = true;
@@ -75,8 +66,8 @@ public class PhraseCard : MonoBehaviour
 
     System.Collections.IEnumerator SlideBack()
     {
-        Vector3 start = transform.position;
-        float elapsed = 0f, duration = 0.25f;
+        Vector3 start   = transform.position;
+        float   elapsed = 0f, duration = 0.25f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
@@ -84,14 +75,13 @@ public class PhraseCard : MonoBehaviour
             yield return null;
         }
         transform.position = homePosition;
-        isReturning = false;
+        isReturning        = false;
         conveyor?.ResumeCard(this);
     }
 
-    // Called by ConveyorBelt to move card downward
     public void MoveDown(float speed)
     {
-        if (!isDragging && !isReturning)
+        if (!isReturning)
             transform.position += Vector3.down * speed * Time.deltaTime;
     }
 }
