@@ -16,4 +16,5 @@ public class EmojiData : ScriptableObject
     public AnimationClip idleClip;
     public AnimationClip correctClip;
     public AnimationClip wrongClip;
+    public AnimationClip fullClip;
 }

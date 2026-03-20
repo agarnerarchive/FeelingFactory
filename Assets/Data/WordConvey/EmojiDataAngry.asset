@@ -27,3 +27,4 @@ MonoBehaviour:
   idleClip: {fileID: 7400000, guid: fa4d85f7233a74e4c9dd9adee2b823a1, type: 2}
   correctClip: {fileID: 7400000, guid: b9cc025f4bb17c04aac7e5b1387f4094, type: 2}
   wrongClip: {fileID: 7400000, guid: a69216f54077b8e4295e316017d88440, type: 2}
+  fullClip: {fileID: 7400000, guid: 6c62584b079c1394cbec3416b269e0e4, type: 2}

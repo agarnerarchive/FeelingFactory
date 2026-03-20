@@ -85,6 +85,7 @@ public class EmojiCharacter : MonoBehaviour
     if (data.correctClip != null) overrideController["Base_Correct"] = data.correctClip;
     if (data.wrongClip   != null) overrideController["Base_Wrong"]   = data.wrongClip;
     if (data.idleClip    != null) overrideController["Base_SpawnIn"] = data.idleClip;
+    if (data.fullClip    != null) overrideController["Base_Full"]    = data.fullClip;
 
     StartCoroutine(PlayIdleNextFrame());
 }
@@ -144,6 +145,8 @@ IEnumerator PlayIdleNextFrame()
         isTransitioning = true;
         FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
         PlayClip(meterFullClip);
+        emojiAnimator?.SetTrigger("Full");
+        yield return new WaitForSeconds(1.0f);
 
         // Show positive sprite
         isPositive = true;
