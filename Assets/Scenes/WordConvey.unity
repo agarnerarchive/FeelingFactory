@@ -556,9 +556,9 @@ MonoBehaviour:
   phraseCardPrefab: {fileID: 8066381624397468888, guid: 5203e9dd0414781499cff8abea7f7f7b, type: 3}
   spawnPoint: {fileID: 280376635}
   despawnPoint: {fileID: 169902401}
-  cardSpeed: 2
-  spawnInterval: 0.6
-  minSpawnGap: 1.5
+  cardSpeed: 1
+  spawnInterval: 0.1
+  minSpawnGap: 0.5
   cardSize: {x: 0.15, y: 0.15}
 --- !u!1 &253398479
 GameObject:
