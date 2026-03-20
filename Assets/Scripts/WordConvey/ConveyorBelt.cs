@@ -12,61 +12,82 @@ public class ConveyorBelt : MonoBehaviour
     public Transform despawnPoint;
 
     [Header("Settings")]
-    public float cardSpeed     = 2f;
-    public float spawnInterval = 2.5f;
-    public Vector2 cardSize    = new Vector2(2f, 0.6f);
+    public float cardSpeed        = 2f;
+    public float spawnInterval    = 2.5f;
+    public float minSpawnGap      = 1.5f;   // minimum world units between cards
+    public Vector2 cardSize       = new Vector2(2f, 0.6f);
 
-    private List<PhraseCard> activeCards  = new List<PhraseCard>();
-    private List<PhraseCard> pausedCards  = new List<PhraseCard>();
-    private List<PhraseCard> cardsToRemove = new List<PhraseCard>();
+    private List<PhraseCard> activeCards    = new List<PhraseCard>();
+    private List<PhraseCard> pausedCards    = new List<PhraseCard>();
+    private List<PhraseCard> cardsToRemove  = new List<PhraseCard>();
     private EmojiData        currentData;
-    private float            spawnTimer   = 0.5f;
-    private bool             isRunning    = true;
+    private float            spawnTimer     = 0.5f;
+    private bool             isRunning      = true;
 
     void Update()
     {
         if (!isRunning || currentData == null) return;
 
-        // Move cards — iterate a copy to avoid modification issues
         foreach (var card in new List<PhraseCard>(activeCards))
         {
             if (card == null || pausedCards.Contains(card)) continue;
             card.MoveDown(cardSpeed);
         }
 
-        // Collect cards to remove separately
         cardsToRemove.Clear();
         foreach (var card in activeCards)
         {
-            if (card == null)
-            {
-                cardsToRemove.Add(card);
-                continue;
-            }
+            if (card == null) { cardsToRemove.Add(card); continue; }
             if (card.transform.position.y < despawnPoint.position.y)
             {
                 Destroy(card.gameObject);
                 cardsToRemove.Add(card);
             }
         }
-
-        // Now safe to remove
         foreach (var card in cardsToRemove)
             activeCards.Remove(card);
 
         spawnTimer -= Time.deltaTime;
         if (spawnTimer <= 0f)
         {
-            SpawnCard();
-            spawnTimer = spawnInterval;
+            if (IsClearToSpawn())
+            {
+                SpawnCard();
+                spawnTimer = spawnInterval;
+            }
+            else
+            {
+                // Check again soon rather than waiting a full interval
+                spawnTimer = 0.2f;
+            }
         }
+    }
+
+    // Returns true if the nearest card is far enough below the spawn point
+    bool IsClearToSpawn()
+    {
+        float spawnY = spawnPoint.position.y;
+
+        foreach (var card in activeCards)
+        {
+            if (card == null) continue;
+
+            float cardY    = card.transform.position.y;
+            float distance = spawnY - cardY;   // how far below spawn the card is
+
+            // If any card is still within minSpawnGap of the spawn point, block spawn
+            if (distance < minSpawnGap)
+                return false;
+        }
+
+        return true;
     }
 
     public void SetEmojiData(EmojiData data)
     {
         currentData = data;
         ClearAllCards();
-        spawnTimer = 0.5f;
+        spawnTimer  = 0.5f;
     }
 
     void SpawnCard()

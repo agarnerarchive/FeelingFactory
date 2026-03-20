@@ -24,3 +24,6 @@ MonoBehaviour:
   - You can't handle this!
   - It's too much for you!
   - Just leave it!
+  idleClip: {fileID: 7400000, guid: 1ae0fc704c2e07e4e83cf6a99ead2807, type: 2}
+  correctClip: {fileID: 7400000, guid: 6d75c3da2ed2ed645be1c21a751ed238, type: 2}
+  wrongClip: {fileID: 7400000, guid: f7c4e03c8a3a59544abbbb0586aa308e, type: 2}
