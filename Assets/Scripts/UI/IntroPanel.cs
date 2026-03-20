@@ -39,6 +39,7 @@ public class IntroPanel : MonoBehaviour
     private int _currentIndex = 0;
     private bool _isOutro = false;
     private bool _needsInitialText = false;
+    public AudioClip click;
 
     void Awake()
     {
@@ -179,8 +180,10 @@ public class IntroPanel : MonoBehaviour
     {
         string[] sequence = _isOutro ? outroTextSequence : introTextSequence;
         Debug.Log($"IntroPanel: Button pressed. _currentIndex before increment = {_currentIndex}, sequence length = {sequence.Length}, _isOutro = {_isOutro}");
+        
 
         _currentIndex++;
+        
 
         if (_currentIndex < sequence.Length)
         {
