@@ -21,7 +21,7 @@ public class EmojiCharacter : MonoBehaviour
 
     [Header("Audio")]
     public AudioSource audioSource;
-    public AudioClip goodPhraseClip, badPhraseClip, meterFullClip, coverClip;
+    public AudioClip goodPhraseClip, badPhraseClip, meterFullClip, coverClip, wobble;
 
     [Header("Meter Settings")]
     public int phrasesRequired = 4;
@@ -152,6 +152,7 @@ IEnumerator PlayIdleNextFrame()
 
         // Cover slams down
         PlayClip(coverClip);
+        PlayClip(wobble);
         yield return SlideCover(down: true);
 
         // Screen shake
@@ -178,6 +179,7 @@ IEnumerator PlayIdleNextFrame()
         isTransitioning = false;
         FindFirstObjectByType<ConveyorBelt>()?.SetRunning(true);
         GameManagerConvey.Instance?.NextRound();
+        PlayClip(coverClip);
     }
 
     // ─── Cover ──────────────────────────────────────────────────────────────

@@ -556,7 +556,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 280376635}
   despawnPoint: {fileID: 169902401}
   cardSpeed: 2
-  spawnInterval: 1
+  spawnInterval: 0.6
   minSpawnGap: 1.5
   cardSize: {x: 0.15, y: 0.15}
 --- !u!1 &253398479
@@ -2067,8 +2067,9 @@ MonoBehaviour:
   audioSource: {fileID: 1109091367}
   goodPhraseClip: {fileID: 8300000, guid: 083da1aa73fb1b543b54456e4194fa7e, type: 3}
   badPhraseClip: {fileID: 8300000, guid: 1e3aff1e16d4e004f8c7aa227d6ec10e, type: 3}
-  meterFullClip: {fileID: 8300000, guid: c4ce1d426417dab48846e04de815e248, type: 3}
+  meterFullClip: {fileID: 0}
   coverClip: {fileID: 8300000, guid: 5260e47181adbbc47b2ff4541d61190d, type: 3}
+  wobble: {fileID: 8300000, guid: c4ce1d426417dab48846e04de815e248, type: 3}
   phrasesRequired: 4
   positiveDuration: 2
   coverAnimDuration: 0.1
@@ -3063,6 +3064,7 @@ MonoBehaviour:
   badPhraseClip: {fileID: 0}
   meterFullClip: {fileID: 0}
   coverClip: {fileID: 0}
+  wobble: {fileID: 0}
   phrasesRequired: 4
   positiveDuration: 2
   coverAnimDuration: 0.4
