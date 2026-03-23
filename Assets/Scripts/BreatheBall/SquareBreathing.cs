@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class SquareBreathing2D : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class SquareBreathing2D : MonoBehaviour
     public AudioSource chimeSource;
 
     [Header("Outro")]
-    public IntroPanel introPanel; // Drag the GameObject that holds IntroPanel here
+    public IntroPanel introPanel;
 
     [Header("Phase Durations (seconds)")]
     public float inhaleDuration = 4f;
@@ -21,8 +22,8 @@ public class SquareBreathing2D : MonoBehaviour
     public float holdOutDuration = 4f;
 
     [Header("Settings")]
-    public float minScale = 0.25f;
-    public float maxScale = 0.3f;
+    //public float minScale = 0.24f;
+    //public float maxScale = 0.3f;
     public int totalCycles = 3;
     public Color inhaleColor = new Color(0.2f, 0.6f, 1f);
     public Color holdColor = new Color(1f, 0.3f, 0.3f);
@@ -30,13 +31,16 @@ public class SquareBreathing2D : MonoBehaviour
 
     private float timer = 0f;
     private bool isHoldingButton = false;
-    private int completedCycles = 0;
-    private bool sessionComplete = false;
     private bool sessionStarted = false;
+    private bool sessionComplete = false;
+    private int completedCycles = 0;
 
     private enum BreathState { Inhale, HoldIn, Exhale, HoldOut }
     private BreathState currentState = BreathState.Inhale;
+    public Animator animator;
+    public float outroDelay = 1f;   // pause after final positive emoji before outro fires
 
+    // ── Called by the button's PointerDown event ──────────────────────────────
     public void OnBreathButtonDown()
     {
         if (sessionComplete) return;
@@ -44,9 +48,18 @@ public class SquareBreathing2D : MonoBehaviour
         sessionStarted = true;
     }
 
+    // ── Called by the button's PointerUp / PointerExit event ─────────────────
     public void OnBreathButtonUp()
     {
         isHoldingButton = false;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+
+    void Start()
+    {
+        ResetToIdle();
+        animator.SetBool("idle", true);
     }
 
     void Update()
@@ -55,79 +68,93 @@ public class SquareBreathing2D : MonoBehaviour
 
         if (isHoldingButton)
         {
-            UpdateBreathing();
+            RunBreathingStep();
         }
         else
         {
-            HandleButtonReleased();
+            // Button not held — tell the user to keep holding if mid-session
+            if (sessionStarted)
+                instructionText.text = "Hold to continue...";
         }
     }
 
-    void HandleButtonReleased()
-    {
-        if (!sessionStarted)
-        {
-            ResetToIdle();
-            return;
-        }
+    // ── Core breathing logic ──────────────────────────────────────────────────
 
-        instructionText.text = "Hold to continue...";
-    }
-
-    void UpdateBreathing()
+    void RunBreathingStep()
     {
         timer += Time.deltaTime;
 
         switch (currentState)
         {
             case BreathState.Inhale:
-            {
-                float progress = timer / inhaleDuration;
+                //UpdateVisuals(inhaleColor,
+                              //Mathf.Lerp(minScale, maxScale, timer / inhaleDuration),
+                              //timer / inhaleDuration);
                 instructionText.text = $"Breathe In... ({completedCycles + 1}/{totalCycles})";
-                UpdateVisuals(inhaleColor, Mathf.Lerp(minScale, maxScale, progress), progress);
                 if (timer >= inhaleDuration) SwitchState(BreathState.HoldIn);
+                animator.SetBool("Idle", false);
+                animator.SetBool("Inhaling", true);
                 break;
-            }
+
             case BreathState.HoldIn:
-            {
-                float progress = timer / holdInDuration;
+                //UpdateVisuals(holdColor, maxScale, timer / holdInDuration);
                 instructionText.text = $"Hold... ({completedCycles + 1}/{totalCycles})";
-                UpdateVisuals(holdColor, maxScale, progress);
                 if (timer >= holdInDuration) SwitchState(BreathState.Exhale);
                 break;
-            }
+
             case BreathState.Exhale:
-            {
-                float progress = timer / exhaleDuration;
+                //UpdateVisuals(inhaleColor,
+                              //Mathf.Lerp(maxScale, minScale, timer / exhaleDuration),
+                              //timer / exhaleDuration);
                 instructionText.text = $"Breathe Out... ({completedCycles + 1}/{totalCycles})";
-                UpdateVisuals(inhaleColor, Mathf.Lerp(maxScale, minScale, progress), progress);
                 if (timer >= exhaleDuration) SwitchState(BreathState.HoldOut);
+                animator.SetBool("Inhaling", false);
+                animator.SetBool("Exhaling", true);
                 break;
-            }
+
             case BreathState.HoldOut:
-            {
-                float progress = timer / holdOutDuration;
+                animator.SetBool("Exhaling", false);
+                animator.SetBool("Idle", true);
+                //UpdateVisuals(holdColor, minScale, timer / holdOutDuration);
                 instructionText.text = $"Wait... ({completedCycles + 1}/{totalCycles})";
-                UpdateVisuals(holdColor, minScale, progress);
-                if (timer >= holdOutDuration) CompleteOrContinue();
+                if (timer >= holdOutDuration) FinishCycle();
                 break;
-            }
         }
     }
 
-    void CompleteOrContinue()
+    // ── State helpers ─────────────────────────────────────────────────────────
+
+    void SwitchState(BreathState next)
+    {
+        timer = 0f;
+        currentState = next;
+        PlayChime();
+    }
+
+    void FinishCycle()
     {
         completedCycles++;
 
         if (completedCycles >= totalCycles)
-        {
             TriggerOutro();
-        }
         else
-        {
             SwitchState(BreathState.Inhale);
-        }
     }
+
+    // ── Visuals ───────────────────────────────────────────────────────────────
+
+    void UpdateVisuals(Color ringColor, float ballScale, float progress)
+    {
+        // Ball grows/shrinks
+       // ballSprite.transform.localScale = new Vector3(ballScale, ballScale, 1f);
+
+        // Ring expands outward as the phase progresses
+        float ringScale = ballScale + (progress * 0.8f);
+        //progressRing.transform.localScale = new Vector3(ringScale, ringScale, 1f);
+        //progressRing.color = ringColor;
+    }
+
+    // ── Session end ───────────────────────────────────────────────────────────
 
     void TriggerOutro()
     {
@@ -136,44 +163,43 @@ public class SquareBreathing2D : MonoBehaviour
         timer = 0f;
 
         instructionText.text = "Well done!";
-
-        transform.localScale = new Vector3(minScale, minScale, 1);
-        progressRing.transform.localScale = new Vector3(minScale + 0.8f, minScale + 0.8f, 1);
-        progressRing.color = completeColor;
-
-        if (introPanel != null)
-        {
-            introPanel.StartOutro();
-        }
-        else
-        {
-            Debug.LogWarning("SquareBreathing2D: introPanel is not assigned in the Inspector.");
-        }
+        OutroSequence();
     }
+        //ballSprite.transform.localScale     = new Vector3(minScale, minScale, 1f);
+        //progressRing.transform.localScale   = new Vector3(minScale + 0.8f, minScale + 0.8f, 1f);
+        //progressRing.color = completeColor;
 
-    void UpdateVisuals(Color targetColor, float ballScale, float progress)
+        IEnumerator OutroSequence()
+{
+    FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
+    FindFirstObjectByType<ConveyorBelt>()?.ClearAllCards();
+
+    yield return new WaitForSeconds(outroDelay);
+
+    IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
+    if (introPanel != null)
     {
-        transform.localScale = new Vector3(ballScale, ballScale, 1);
-        float ringScale = ballScale + (progress * 0.8f);
-        progressRing.transform.localScale = new Vector3(ringScale, ringScale, 1);
-        progressRing.color = targetColor;
+        // Activate the GameObject first, then call StartOutro
+        introPanel.gameObject.SetActive(true);
+        yield return null; // wait one frame for activation to complete
+        introPanel.StartOutro();
     }
-
-    void SwitchState(BreathState newState)
+    else
     {
-        timer = 0;
-        currentState = newState;
-        if (chimeSource != null) chimeSource.Play();
+        Debug.LogError("EmojiCharacter: No IntroPanel found in scene!");
     }
+}
+    // ── Idle / reset ──────────────────────────────────────────────────────────
 
     void ResetToIdle()
     {
-        timer = 0;
-        instructionText.text = "Hold the button";
-        transform.localScale = new Vector3(minScale, minScale, 1);
-        progressRing.transform.localScale = new Vector3(minScale, minScale, 1);
-        progressRing.color = Color.gray;
+        timer = 0f;
         currentState = BreathState.Inhale;
+        instructionText.text = "Hold the button";
+
+        //ballSprite.transform.localScale     = new Vector3(minScale, minScale, 1f);
+        //progressRing.transform.localScale   = new Vector3(minScale, minScale, 1f);
+        //progressRing.color = Color.gray;
     }
 
     public void RestartSession()
@@ -181,8 +207,13 @@ public class SquareBreathing2D : MonoBehaviour
         completedCycles = 0;
         sessionComplete = false;
         sessionStarted = false;
-        timer = 0f;
-        currentState = BreathState.Inhale;
         ResetToIdle();
+    }
+
+    // ── Audio ─────────────────────────────────────────────────────────────────
+
+    void PlayChime()
+    {
+        if (chimeSource != null) chimeSource.Play();
     }
 }
