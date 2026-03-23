@@ -863,10 +863,13 @@ MonoBehaviour:
   panelImageObject: {fileID: 778191997}
   introTextSequence:
   - 'Let''s look at reframing our emotions. '
-  - Play the game!
+  - Find the positive phrases!
+  - Then feed them to the emoji!
+  - To turn a negative emotion Positive!
   outroTextSequence:
   - Congratulations!
   - You've completed your first lesson!
+  - Time to recap what you've learned!
   nextLevelName: HubWorld
   click: {fileID: 8300000, guid: 7a29bda1fe20b414da2fce096565cfdc, type: 3}
 --- !u!114 &315476406
