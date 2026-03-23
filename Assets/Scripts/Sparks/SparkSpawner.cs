@@ -60,8 +60,10 @@ public class SparkSpawner : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine (StartDelay());
+
         _currentSpawnInterval = spawnInterval;
-        StartCoroutine(SpawnLoop());
+        //StartCoroutine(SpawnLoop());
         launcher = GetComponent<AudioSource>();
 
         // Set up warning animation
@@ -182,5 +184,11 @@ public class SparkSpawner : MonoBehaviour
     public void LoadNextLevel()
     {
         SceneManager.LoadScene("nextLevelName");
+    }
+
+     IEnumerator StartDelay()
+    {
+        yield return new WaitForSeconds(10.0f);
+        StartCoroutine(SpawnLoop());
     }
 }
