@@ -633,15 +633,15 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2785572414437190603, guid: a48be6eec3be8904b8f68de97e10aae3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fc57fb5fe6f259840a8e74dbd51701af, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 20.48, y: 20.48}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!4 &621105971
 Transform:
@@ -2163,7 +2163,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1853282848
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2222,6 +2222,7 @@ MonoBehaviour:
   - Are you feeling relaxed? Great!
   - Let's move on to another game!
   nextLevelName: WordConvey
+  click: {fileID: 0}
 --- !u!114 &1853282850
 MonoBehaviour:
   m_ObjectHideFlags: 0

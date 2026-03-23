@@ -38,6 +38,9 @@ public class EmojiCharacter : MonoBehaviour
     private int  correctCount    = 0;
     private bool isPositive      = false;
     private bool isTransitioning = false;
+    
+    [Header("Outro")]
+    public float outroDelay = 1f;   // pause after final positive emoji before outro fires
 
     EmojiData Current => emojiSequence[currentIndex % emojiSequence.Length];
 
@@ -141,49 +144,53 @@ IEnumerator PlayIdleNextFrame()
     // ─── Round Sequence ─────────────────────────────────────────────────────
 
     IEnumerator MeterFullSequence()
+{
+    isTransitioning = true;
+    FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
+    PlayClip(meterFullClip);
+    emojiAnimator?.SetTrigger("Full");
+    yield return new WaitForSeconds(1.0f);
+
+    // Show positive sprite
+    isPositive = true;
+    sr.sprite  = Current.positiveSprite;
+    yield return new WaitForSeconds(positiveDuration);
+
+    // ── Was this the last emoji? ──────────────────────────────────────────
+    if (currentIndex >= emojiSequence.Length - 1)
     {
-        isTransitioning = true;
-        FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
-        PlayClip(meterFullClip);
-        emojiAnimator?.SetTrigger("Full");
-        yield return new WaitForSeconds(1.0f);
-
-        // Show positive sprite
-        isPositive = true;
-        sr.sprite  = Current.positiveSprite;
-        yield return new WaitForSeconds(positiveDuration);
-
-        // Cover slams down
-        PlayClip(coverClip);
-        PlayClip(wobble);
-        yield return SlideCover(down: true);
-
-        // Screen shake
-        yield return ShakeThis(Camera.main.transform, shakeDuration, shakeStrength);
-
-        // Advance to next emoji
-        currentIndex++;
-        correctCount      = 0;
-        meterSlider.value = 0f;
-        isPositive        = false;
-        sr.sprite         = Current.negativeSprite;
-
-        // Swap in the new emoji's animation clips
-        ApplyAnimationClips(Current);
-
-        // Tell conveyor to use new emoji's phrases
-        FindFirstObjectByType<ConveyorBelt>()?.SetEmojiData(Current);
-
-        yield return new WaitForSeconds(0.3f);
-
-        // Cover reveals new emoji
-        yield return SlideCover(down: false);
-
-        isTransitioning = false;
-        FindFirstObjectByType<ConveyorBelt>()?.SetRunning(true);
-        GameManagerConvey.Instance?.NextRound();
-        PlayClip(coverClip);
+        yield return StartCoroutine(OutroSequence());
+        yield break;  // stop here — don't advance to next round
     }
+    // ─────────────────────────────────────────────────────────────────────
+
+    // Cover slams down
+    PlayClip(coverClip);
+    PlayClip(wobble);
+    yield return SlideCover(down: true);
+
+    // Screen shake
+    yield return ShakeThis(Camera.main.transform, shakeDuration, shakeStrength);
+
+    // Advance to next emoji
+    currentIndex++;
+    correctCount      = 0;
+    meterSlider.value = 0f;
+    isPositive        = false;
+    sr.sprite         = Current.negativeSprite;
+
+    ApplyAnimationClips(Current);
+    FindFirstObjectByType<ConveyorBelt>()?.SetEmojiData(Current);
+
+    yield return new WaitForSeconds(0.3f);
+
+    yield return SlideCover(down: false);
+
+    isTransitioning = false;
+    FindFirstObjectByType<ConveyorBelt>()?.SetRunning(true);
+    GameManagerConvey.Instance?.NextRound();
+    PlayClip(coverClip);
+}
 
     // ─── Cover ──────────────────────────────────────────────────────────────
 
@@ -228,4 +235,25 @@ IEnumerator PlayIdleNextFrame()
     }
 
     void PlayClip(AudioClip clip) { if (audioSource && clip) audioSource.PlayOneShot(clip); }
+
+    IEnumerator OutroSequence()
+{
+    FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
+    FindFirstObjectByType<ConveyorBelt>()?.ClearAllCards();
+
+    yield return new WaitForSeconds(outroDelay);
+
+    IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
+    if (introPanel != null)
+    {
+        // Activate the GameObject first, then call StartOutro
+        introPanel.gameObject.SetActive(true);
+        yield return null; // wait one frame for activation to complete
+        introPanel.StartOutro();
+    }
+    else
+    {
+        Debug.LogError("EmojiCharacter: No IntroPanel found in scene!");
+    }
+}
 }
