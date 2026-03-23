@@ -175,12 +175,18 @@ public class SparkSpawner : MonoBehaviour
         yield return new WaitForSeconds(outroDelay);
 
         IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
-        if (introPanel != null)
-            introPanel.StartOutro();
-        else
-            Debug.LogWarning("SparkSpawner: No IntroPanel found in scene.");
+    if (introPanel != null)
+    {
+        // Activate the GameObject first, then call StartOutro
+        introPanel.gameObject.SetActive(true);
+        yield return null; // wait one frame for activation to complete
+        introPanel.StartOutro();
     }
-
+    else
+    {
+        Debug.LogError("EmojiCharacter: No IntroPanel found in scene!");
+    }
+}
     public void LoadNextLevel()
     {
         SceneManager.LoadScene("nextLevelName");
