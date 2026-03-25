@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections;
 
@@ -6,6 +8,9 @@ public class SquareBreathing2D : MonoBehaviour
 {
     [Header("UI Elements")]
     public TMP_Text instructionText;
+
+    // Drag the button GameObject here so we can disable its EventTrigger on completion
+    public Button breathButton;
 
     [Header("Audio")]
     public AudioSource chimeSource;
@@ -29,6 +34,7 @@ public class SquareBreathing2D : MonoBehaviour
     private bool  isHoldingButton = false;
     private bool  sessionStarted  = false;
     private bool  sessionComplete = false;
+    private bool  outroStarted    = false;
     private int   completedCycles = 0;
 
     private enum BreathState { Inhale, HoldIn, Exhale, HoldOut }
@@ -42,28 +48,38 @@ public class SquareBreathing2D : MonoBehaviour
     }
 
     void Update()
+{
+    if (sessionComplete) return;
+
+    if (isHoldingButton)
     {
-        if (sessionComplete) return;
-
-        if (isHoldingButton)
-        {
-            RunBreathingStep();
-        }
-        else if (sessionStarted)
-        {
-            // Button released mid-session — pause and wait
-            instructionText.text = "Hold to continue...";
-        }
+        RunBreathingStep();
     }
+    else if (sessionStarted)
+    {
+        // Button released — reset back to the beginning of the cycle
+        sessionStarted  = false;
+        isHoldingButton = false;
+        completedCycles = 0;
+        ResetToIdle();
+    }
+}
 
-    // ── Button events (wire to PointerDown / PointerUp / PointerExit) ─────────
+    // ── Button events ──────────────────────────────────────────────────────────
+    // Wire via Event Trigger: PointerDown / PointerUp / PointerExit
 
     public void OnBreathButtonDown()
+{
+    if (sessionComplete) return;
+    isHoldingButton = true;
+
+    // First press — manually apply the initial inhale animation
+    if (!sessionStarted)
     {
-        if (sessionComplete) return;
-        isHoldingButton = true;
-        sessionStarted  = true;
+        sessionStarted = true;
+        ApplyAnimatorState(BreathState.Inhale);
     }
+}
 
     public void OnBreathButtonUp()
     {
@@ -102,7 +118,6 @@ public class SquareBreathing2D : MonoBehaviour
 
     // ── State management ───────────────────────────────────────────────────────
 
-    // All animator booleans live here — one place, no per-frame spam.
     void SwitchState(BreathState next)
     {
         timer        = 0f;
@@ -113,7 +128,6 @@ public class SquareBreathing2D : MonoBehaviour
 
     void ApplyAnimatorState(BreathState state)
     {
-        // Clear everything first so only one bool is ever true at a time
         animator.SetBool("Idle",     false);
         animator.SetBool("Inhaling", false);
         animator.SetBool("Exhaling", false);
@@ -121,10 +135,7 @@ public class SquareBreathing2D : MonoBehaviour
         switch (state)
         {
             case BreathState.Inhale:
-                animator.SetBool("Inhaling", true);
-                break;
             case BreathState.HoldIn:
-                // Keep the inhale pose held at the top
                 animator.SetBool("Inhaling", true);
                 break;
             case BreathState.Exhale:
@@ -150,19 +161,33 @@ public class SquareBreathing2D : MonoBehaviour
 
     void TriggerOutro()
     {
+        // Guard against iOS stray touch events firing this twice
+        if (outroStarted) return;
+        outroStarted = true;
+
         sessionComplete      = true;
         isHoldingButton      = false;
         timer                = 0f;
         instructionText.text = "Well done!";
 
-        // FIX: must use StartCoroutine — calling OutroSequence() directly skips all yields
+        // Disable the EventTrigger component so no further touches can get through
+        if (breathButton != null)
+        {
+            EventTrigger trigger = breathButton.GetComponent<EventTrigger>();
+            if (trigger != null) trigger.enabled = false;
+        }
+
         StartCoroutine(OutroSequence());
     }
 
     IEnumerator OutroSequence()
     {
-        FindFirstObjectByType<ConveyorBelt>()?.SetRunning(false);
-        FindFirstObjectByType<ConveyorBelt>()?.ClearAllCards();
+        ConveyorBelt belt = FindFirstObjectByType<ConveyorBelt>();
+        if (belt != null)
+        {
+            belt.SetRunning(false);
+            belt.ClearAllCards();
+        }
 
         yield return new WaitForSeconds(outroDelay);
 
@@ -200,6 +225,15 @@ public class SquareBreathing2D : MonoBehaviour
         completedCycles = 0;
         sessionComplete = false;
         sessionStarted  = false;
+        outroStarted    = false;
+
+        // Re-enable the EventTrigger so the button works again
+        if (breathButton != null)
+        {
+            EventTrigger trigger = breathButton.GetComponent<EventTrigger>();
+            if (trigger != null) trigger.enabled = true;
+        }
+
         ResetToIdle();
     }
 
