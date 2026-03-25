@@ -594,6 +594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SquareBreathing2D
   instructionText: {fileID: 741614191}
+  breathButton: {fileID: 1851870192}
   chimeSource: {fileID: 621105972}
   animator: {fileID: 621105973}
   inhaleDuration: 3
