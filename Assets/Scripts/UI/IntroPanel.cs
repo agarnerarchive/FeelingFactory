@@ -122,58 +122,71 @@ public class IntroPanel : MonoBehaviour
 
     // Called by SquareBreathing2D when all cycles complete
     public void StartOutro()
+{
+    Debug.Log("<color=orange>IntroPanel: StartOutro received call.</color>");
+    _isOutro = true;
+    _currentIndex = 0;
+
+    // 1. Safe GameManager check
+    if (GameManager.Instance != null)
     {
-        _isOutro = true;
-        _currentIndex = 0;
-
-        if (GameManager.Instance != null)
-            GameManager.Instance.enabled = false;
-
-        SparkSpawner spawner = FindFirstObjectByType<SparkSpawner>(FindObjectsInactive.Include);
-        if (spawner != null)
-            spawner.enabled = false;
-
-        foreach (DraggableSpark spark in FindObjectsByType<DraggableSpark>(FindObjectsSortMode.None))
-        {
-            if (!spark._isExpiring)
-                spark.StartCoroutine(spark.FadeOutAndDestroy());
-        }
-
-        StartCoroutine(ActivateOutroPanel());
+        GameManager.Instance.enabled = false;
     }
+    else 
+    {
+        Debug.LogWarning("IntroPanel: GameManager.Instance not found. Skipping...");
+    }
+
+    // 2. Safe Spawner check
+    SparkSpawner spawner = FindFirstObjectByType<SparkSpawner>(FindObjectsInactive.Include);
+    if (spawner != null)
+    {
+        spawner.enabled = false;
+    }
+
+    // 3. Safe Spark cleanup
+    DraggableSpark[] sparks = FindObjectsByType<DraggableSpark>(FindObjectsSortMode.None);
+    Debug.Log($"IntroPanel: Found {sparks.Length} sparks to clean up.");
+    foreach (DraggableSpark spark in sparks)
+    {
+        if (spark != null && !spark._isExpiring)
+            spark.StartCoroutine(spark.FadeOutAndDestroy());
+    }
+
+    // 4. Start the panel sequence
+    Debug.Log("IntroPanel: Starting ActivateOutroPanel coroutine.");
+    StartCoroutine(ActivateOutroPanel());
+}
 
     private IEnumerator ActivateOutroPanel()
+{
+    Debug.Log("<color=green>IntroPanel: ActivateOutroPanel coroutine is running!</color>");
+    
+    // Force the panel to be active and visible
+    introPanel.SetActive(true);
+    
+    // If you have a CanvasGroup, force it to visible
+    CanvasGroup cg = introPanel.GetComponent<CanvasGroup>();
+    if (cg != null) cg.alpha = 1f;
+
+    yield return null; // Wait for Unity to enable components
+
+    // Manually trigger the first text line immediately instead of waiting for LateUpdate
+    if (outroTextSequence != null && outroTextSequence.Length > 0)
     {
-        introPanel.SetActive(true);
-
-        // Wait one full frame for Unity's reactivation cycle to finish
-        yield return null;
-
-        // Kill any door animations that auto-played on reactivation
-        if (_introAnimationOne != null)
-        {
-            _introAnimationOne.Stop();
-            _introAnimationOne.enabled = false;
-        }
-        if (_introAnimationTwo != null)
-        {
-            _introAnimationTwo.Stop();
-            _introAnimationTwo.enabled = false;
-        }
-
-        PlayLooping(_buttonAnimation, buttonClip);
-        PlayLooping(_panelImageAnimation, panelImageClip);
-
-        if (outroTextSequence.Length == 0)
-        {
-            Debug.LogWarning("IntroPanel: outroTextSequence is empty.");
-            StartCoroutine(PlayReverseAndLoadLevel());
-            yield break;
-        }
-
-        // Flag Update to write the first outro line next frame
-        _needsInitialText = true;
+        Debug.Log("IntroPanel: Setting initial Outro text: " + outroTextSequence[0]);
+        if (buttonText != null) buttonText.text = outroTextSequence[0];
+        _currentIndex = 0;
     }
+    else
+    {
+        Debug.LogError("IntroPanel: OUTRO TEXT SEQUENCE IS EMPTY!");
+    }
+
+    // Play animations
+    PlayLooping(_buttonAnimation, buttonClip);
+    PlayLooping(_panelImageAnimation, panelImageClip);
+}
 
     // Hook this to your button's OnClick event in the Inspector
     public void OnButtonPressed()

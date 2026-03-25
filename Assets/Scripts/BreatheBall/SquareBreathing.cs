@@ -161,6 +161,7 @@ public class SquareBreathing2D : MonoBehaviour
 
     void TriggerOutro()
     {
+        Debug.Log("Outro Triggered!");
         // Guard against iOS stray touch events firing this twice
         if (outroStarted) return;
         outroStarted = true;
@@ -182,18 +183,25 @@ public class SquareBreathing2D : MonoBehaviour
 
     IEnumerator OutroSequence()
 {
+    Debug.Log("<color=cyan>SquareBreathing2D: Starting Outro Sequence...</color>");
     yield return new WaitForSeconds(outroDelay);
 
     IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
+    
     if (introPanel != null)
     {
+        Debug.Log($"<color=cyan>SquareBreathing2D: Found IntroPanel on GameObject: {introPanel.gameObject.name}. Activating...</color>");
         introPanel.gameObject.SetActive(true);
-        yield return null;
+        
+        // Give Unity a frame to process the activation
+        yield return null; 
+        
+        Debug.Log("<color=cyan>SquareBreathing2D: Calling StartOutro().</color>");
         introPanel.StartOutro();
     }
     else
     {
-        Debug.LogError("SquareBreathing2D: No IntroPanel found in scene!");
+        Debug.LogError("<color=red>SquareBreathing2D: FAILED to find IntroPanel in the scene! Check if the script is missing from your UI Canvas.</color>");
     }
 }
 
