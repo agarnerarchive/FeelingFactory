@@ -349,6 +349,7 @@ GameObject:
   - component: {fileID: 331407546}
   - component: {fileID: 331407545}
   - component: {fileID: 331407544}
+  - component: {fileID: 331407547}
   m_Layer: 5
   m_Name: InstructionButton
   m_TagString: Untagged
@@ -470,6 +471,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 331407541}
   m_CullTransparentMesh: 1
+--- !u!111 &331407547
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331407541}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: 5acc52396613b34478cf05ec2be50ca1, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 5acc52396613b34478cf05ec2be50ca1, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &357997111
 GameObject:
   m_ObjectHideFlags: 0
