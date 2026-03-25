@@ -181,28 +181,21 @@ public class SquareBreathing2D : MonoBehaviour
     }
 
     IEnumerator OutroSequence()
+{
+    yield return new WaitForSeconds(outroDelay);
+
+    IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
+    if (introPanel != null)
     {
-        ConveyorBelt belt = FindFirstObjectByType<ConveyorBelt>();
-        if (belt != null)
-        {
-            belt.SetRunning(false);
-            belt.ClearAllCards();
-        }
-
-        yield return new WaitForSeconds(outroDelay);
-
-        IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
-        if (introPanel != null)
-        {
-            introPanel.gameObject.SetActive(true);
-            yield return null; // one frame for activation to settle
-            introPanel.StartOutro();
-        }
-        else
-        {
-            Debug.LogError("SquareBreathing2D: No IntroPanel found in scene!");
-        }
+        introPanel.gameObject.SetActive(true);
+        yield return null;
+        introPanel.StartOutro();
     }
+    else
+    {
+        Debug.LogError("SquareBreathing2D: No IntroPanel found in scene!");
+    }
+}
 
     // ── Idle / reset ───────────────────────────────────────────────────────────
 
