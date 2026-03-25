@@ -48,38 +48,38 @@ public class SquareBreathing2D : MonoBehaviour
     }
 
     void Update()
-{
-    if (sessionComplete) return;
+    {
+        if (sessionComplete) return;
 
-    if (isHoldingButton)
-    {
-        RunBreathingStep();
+        if (isHoldingButton)
+        {
+            RunBreathingStep();
+        }
+        else if (sessionStarted)
+        {
+            // Button released — reset cycle back to the beginning
+            sessionStarted  = false;
+            isHoldingButton = false;
+            completedCycles = 0;
+            ResetToIdle();
+        }
     }
-    else if (sessionStarted)
-    {
-        // Button released — reset back to the beginning of the cycle
-        sessionStarted  = false;
-        isHoldingButton = false;
-        completedCycles = 0;
-        ResetToIdle();
-    }
-}
 
     // ── Button events ──────────────────────────────────────────────────────────
     // Wire via Event Trigger: PointerDown / PointerUp / PointerExit
 
     public void OnBreathButtonDown()
-{
-    if (sessionComplete) return;
-    isHoldingButton = true;
-
-    // First press — manually apply the initial inhale animation
-    if (!sessionStarted)
     {
-        sessionStarted = true;
-        ApplyAnimatorState(BreathState.Inhale);
+        if (sessionComplete) return;
+        isHoldingButton = true;
+
+        // First press — manually kick off the inhale animation
+        if (!sessionStarted)
+        {
+            sessionStarted = true;
+            ApplyAnimatorState(BreathState.Inhale);
+        }
     }
-}
 
     public void OnBreathButtonUp()
     {
@@ -128,6 +128,7 @@ public class SquareBreathing2D : MonoBehaviour
 
     void ApplyAnimatorState(BreathState state)
     {
+        // Clear all bools first so only one is ever true at a time
         animator.SetBool("Idle",     false);
         animator.SetBool("Inhaling", false);
         animator.SetBool("Exhaling", false);
@@ -170,7 +171,7 @@ public class SquareBreathing2D : MonoBehaviour
         timer                = 0f;
         instructionText.text = "Well done!";
 
-        // Disable the EventTrigger component so no further touches can get through
+        // Disable the EventTrigger so no further touches can get through
         if (breathButton != null)
         {
             EventTrigger trigger = breathButton.GetComponent<EventTrigger>();
@@ -181,21 +182,23 @@ public class SquareBreathing2D : MonoBehaviour
     }
 
     IEnumerator OutroSequence()
-{
-    yield return new WaitForSeconds(outroDelay);
+    {
+        yield return new WaitForSeconds(outroDelay);
 
-    IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
-    if (introPanel != null)
-    {
-        introPanel.gameObject.SetActive(true);
-        yield return null;
-        introPanel.StartOutro();
+        IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
+        if (introPanel != null)
+        {
+            // Set the outro flag BEFORE activating so IntroPanel.Start() skips the door open animations
+            introPanel.PrepareForOutro();
+            introPanel.gameObject.SetActive(true);
+            yield return null; // one frame for activation to settle
+            introPanel.StartOutro();
+        }
+        else
+        {
+            Debug.LogError("SquareBreathing2D: No IntroPanel found in scene!");
+        }
     }
-    else
-    {
-        Debug.LogError("SquareBreathing2D: No IntroPanel found in scene!");
-    }
-}
 
     // ── Idle / reset ───────────────────────────────────────────────────────────
 
