@@ -20,10 +20,10 @@ MonoBehaviour:
   - Your feelings are valid!
   - Take a deep breath!
   badPhrases:
-  - Let it destroy you!
-  - Everyone is against you!
-  - Rage is all you have!
-  - You always lose control
+  - Calm down!
+  - You're overreacting!
+  - Why are you doing this?
+  - You're always so angry!
   idleClip: {fileID: 7400000, guid: fa4d85f7233a74e4c9dd9adee2b823a1, type: 2}
   correctClip: {fileID: 7400000, guid: b9cc025f4bb17c04aac7e5b1387f4094, type: 2}
   wrongClip: {fileID: 7400000, guid: a69216f54077b8e4295e316017d88440, type: 2}

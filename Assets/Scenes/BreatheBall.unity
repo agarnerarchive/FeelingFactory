@@ -619,7 +619,7 @@ MonoBehaviour:
   holdInDuration: 3
   exhaleDuration: 6
   holdOutDuration: 3
-  totalCycles: 3
+  totalCycles: 1
   outroDelay: 1
 --- !u!212 &621105970
 SpriteRenderer:
@@ -708,10 +708,10 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 792a6f67f79f381459f9b8b48ade9f6c, type: 3}
+  m_Resource: {fileID: 8300000, guid: 6efd80a64bfdb7c4395cbae57ba43268, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
+  m_Volume: 0.316
+  m_Pitch: 0.87
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -844,11 +844,10 @@ Animation:
   m_GameObject: {fileID: 623174934}
   m_Enabled: 1
   serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: 6b684fd85c3c9294a8db180b8aa8df10, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: 6b684fd85c3c9294a8db180b8aa8df10, type: 2}
+  m_Animation: {fileID: 0}
+  m_Animations: []
   m_WrapMode: 0
-  m_PlayAutomatically: 1
+  m_PlayAutomatically: 0
   m_AnimatePhysics: 0
   m_UpdateMode: 0
   m_CullingType: 0
@@ -921,6 +920,7 @@ GameObject:
   - component: {fileID: 697968589}
   - component: {fileID: 697968588}
   - component: {fileID: 697968587}
+  - component: {fileID: 697968591}
   m_Layer: 5
   m_Name: Emoji
   m_TagString: Untagged
@@ -1007,6 +1007,23 @@ RectTransform:
   m_AnchoredPosition: {x: -27, y: -202}
   m_SizeDelta: {x: 350, y: 350}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!111 &697968591
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 697968586}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: d646890bb35155743b9154f4ea8a1624, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: d646890bb35155743b9154f4ea8a1624, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &726222513
 GameObject:
   m_ObjectHideFlags: 0
@@ -2403,7 +2420,6 @@ MonoBehaviour:
   - Are you feeling relaxed? Great!
   - Let's move on to another game!
   nextLevelName: WordConvey
-  click: {fileID: 0}
 --- !u!114 &1853282850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2808,11 +2824,10 @@ Animation:
   m_GameObject: {fileID: 2120954484}
   m_Enabled: 1
   serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: f31239e69e541294fb2690ec5ecaeeb4, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: f31239e69e541294fb2690ec5ecaeeb4, type: 2}
+  m_Animation: {fileID: 0}
+  m_Animations: []
   m_WrapMode: 0
-  m_PlayAutomatically: 1
+  m_PlayAutomatically: 0
   m_AnimatePhysics: 0
   m_UpdateMode: 0
   m_CullingType: 0
