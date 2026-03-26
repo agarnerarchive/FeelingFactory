@@ -160,51 +160,50 @@ public class SquareBreathing2D : MonoBehaviour
     // ── Session end ────────────────────────────────────────────────────────────
 
     void TriggerOutro()
+{
+    if (outroStarted) return;
+    outroStarted = true;
+
+    Debug.Log("<color=green>SquareBreathing: 3 Cycles Complete. Triggering Outro...</color>");
+
+    // Disable the button immediately so the player can't keep clicking
+    if (breathButton != null)
     {
-        Debug.Log("Outro Triggered!");
-        // Guard against iOS stray touch events firing this twice
-        if (outroStarted) return;
-        outroStarted = true;
-
-        sessionComplete      = true;
-        isHoldingButton      = false;
-        timer                = 0f;
-        instructionText.text = "Well done!";
-
-        // Disable the EventTrigger component so no further touches can get through
-        if (breathButton != null)
-        {
-            EventTrigger trigger = breathButton.GetComponent<EventTrigger>();
-            if (trigger != null) trigger.enabled = false;
-        }
-
-        StartCoroutine(OutroSequence());
+        EventTrigger trigger = breathButton.GetComponent<EventTrigger>();
+        if (trigger != null) trigger.enabled = false;
+        
+        // Optional: Hide the breathing button/text so it doesn't overlap the instructions
+        breathButton.gameObject.SetActive(false);
+        if (instructionText != null) instructionText.gameObject.SetActive(false);
     }
 
-    IEnumerator OutroSequence()
+    StartCoroutine(OutroSequence());
+}
+
+IEnumerator OutroSequence()
 {
-    Debug.Log("<color=cyan>SquareBreathing2D: Starting Outro Sequence...</color>");
+    // Wait the specified delay
     yield return new WaitForSeconds(outroDelay);
 
+    // Find the IntroPanel even if it is currently disabled
     IntroPanel introPanel = FindFirstObjectByType<IntroPanel>(FindObjectsInactive.Include);
     
     if (introPanel != null)
     {
-        Debug.Log($"<color=cyan>SquareBreathing2D: Found IntroPanel on GameObject: {introPanel.gameObject.name}. Activating...</color>");
+        // 1. Turn the GameObject on
         introPanel.gameObject.SetActive(true);
         
-        // Give Unity a frame to process the activation
+        // 2. Wait exactly one frame so Unity can run "OnEnable" and "Awake"
         yield return null; 
         
-        Debug.Log("<color=cyan>SquareBreathing2D: Calling StartOutro().</color>");
+        // 3. Fire the StartOutro logic
         introPanel.StartOutro();
     }
     else
     {
-        Debug.LogError("<color=red>SquareBreathing2D: FAILED to find IntroPanel in the scene! Check if the script is missing from your UI Canvas.</color>");
+        Debug.LogError("SquareBreathing2D: Could not find IntroPanel in this scene! Please ensure the IntroPanel prefab is in the hierarchy.");
     }
 }
-
     // ── Idle / reset ───────────────────────────────────────────────────────────
 
     void ResetToIdle()
