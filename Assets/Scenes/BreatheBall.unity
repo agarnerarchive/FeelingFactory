@@ -613,7 +613,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SquareBreathing2D
   instructionText: {fileID: 741614191}
   breathButton: {fileID: 1851870192}
-  chimeSource: {fileID: 621105972}
+  audioSource: {fileID: 621105972}
+  breathin: {fileID: 8300000, guid: 53e1a3ae213b61744a42a2866901de28, type: 3}
+  breathout: {fileID: 8300000, guid: f51b79afa9dda66429477c9be4980d0e, type: 3}
+  heartbeat: {fileID: 8300000, guid: 237908fee79370947a63360902b3f9db, type: 3}
+  finish: {fileID: 8300000, guid: 6efd80a64bfdb7c4395cbae57ba43268, type: 3}
   animator: {fileID: 621105973}
   inhaleDuration: 3
   holdInDuration: 3
@@ -708,8 +712,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 6efd80a64bfdb7c4395cbae57ba43268, type: 3}
-  m_PlayOnAwake: 0
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
   m_Volume: 0.316
   m_Pitch: 0.87
   Loop: 0
