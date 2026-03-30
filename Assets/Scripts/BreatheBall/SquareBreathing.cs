@@ -13,7 +13,8 @@ public class SquareBreathing2D : MonoBehaviour
     public Button breathButton;
 
     [Header("Audio")]
-    public AudioSource chimeSource;
+    public AudioSource audioSource;
+    public AudioClip breathin, breathout, heartbeat, finish;
 
     [Header("Animator")]
     public Animator animator;
@@ -45,6 +46,7 @@ public class SquareBreathing2D : MonoBehaviour
     void Start()
     {
         ResetToIdle();
+
     }
 
     void Update()
@@ -72,9 +74,10 @@ public class SquareBreathing2D : MonoBehaviour
 {
     if (sessionComplete) return;
     isHoldingButton = true;
+        PlayClip(breathin);
 
-    // First press — manually apply the initial inhale animation
-    if (!sessionStarted)
+        // First press — manually apply the initial inhale animation
+        if (!sessionStarted)
     {
         sessionStarted = true;
         ApplyAnimatorState(BreathState.Inhale);
@@ -122,7 +125,6 @@ public class SquareBreathing2D : MonoBehaviour
     {
         timer        = 0f;
         currentState = next;
-        PlayChime();
         ApplyAnimatorState(next);
     }
 
@@ -140,9 +142,13 @@ public class SquareBreathing2D : MonoBehaviour
                 break;
             case BreathState.Exhale:
                 animator.SetBool("Exhaling", true);
+                PlayClip(breathout);
+                PlayClip(heartbeat);
                 break;
             case BreathState.HoldOut:
                 animator.SetBool("Idle", true);
+                stopclip(heartbeat);
+                PlayClip(finish);
                 break;
         }
     }
@@ -239,8 +245,16 @@ IEnumerator OutroSequence()
 
     // ── Audio ──────────────────────────────────────────────────────────────────
 
-    void PlayChime()
-    {
-        if (chimeSource != null) chimeSource.Play();
+
+    void PlayClip(AudioClip clip) 
+    { 
+        if (audioSource && clip) audioSource.PlayOneShot(clip);
     }
+
+    void stopclip(AudioClip clip)
+    {
+        if (audioSource && clip) audioSource.Stop();
+    }
+
+
 }
