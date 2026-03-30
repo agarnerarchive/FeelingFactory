@@ -2017,6 +2017,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1804628925}
   - component: {fileID: 1804628924}
+  - component: {fileID: 1804628926}
   m_Layer: 0
   m_Name: universfield-opening-metal-door-199581
   m_TagString: Untagged
@@ -2036,7 +2037,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: d2c562c82e6b8634e9332b9d32baeb62, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -2136,6 +2137,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1804628926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1804628923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e12ba096697059942b6a95e6e27e68c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::delay_audio
+  audioSource: {fileID: 1804628924}
+  clip: {fileID: 8300000, guid: d2c562c82e6b8634e9332b9d32baeb62, type: 3}
 --- !u!1 &1851870189
 GameObject:
   m_ObjectHideFlags: 0
