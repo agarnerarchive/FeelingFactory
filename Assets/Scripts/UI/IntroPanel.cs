@@ -38,6 +38,9 @@ public class IntroPanel : MonoBehaviour
     private bool _needsInitialText = false;
     private bool _isInitialized = false;
 
+    public AudioSource audioSource;
+    public AudioClip doorshut;
+
     // 1. We use Awake to make sure components are ready before Start()
     void Awake()
     {
@@ -82,6 +85,7 @@ public class IntroPanel : MonoBehaviour
             // Explicitly play the Open animation (Speed 1, Time 0)
             PlayOnce(_introAnimationOne, introClipOne, 1f, 0f);
             PlayOnce(_introAnimationTwo, introClipTwo, 1f, 0f);
+            
 
             PlayLooping(_buttonAnimation, buttonClip);
             PlayLooping(_panelImageAnimation, panelImageClip);
@@ -117,6 +121,7 @@ public class IntroPanel : MonoBehaviour
         // 2. Snap doors to the "Open" frame and hide them
         PrepareDoorForInstructions(_introAnimationOne, introClipOne, introAnimationObjectOne);
         PrepareDoorForInstructions(_introAnimationTwo, introClipTwo, introAnimationObjectTwo);
+        PlayClip(doorshut);
 
         introPanel.SetActive(true);
         yield return null; 
@@ -240,5 +245,10 @@ public class IntroPanel : MonoBehaviour
 
         if (!string.IsNullOrEmpty(nextLevelName))
             SceneManager.LoadScene(nextLevelName);
+    }
+
+    void PlayClip(AudioClip clip)
+    {
+        if (audioSource && clip) audioSource.PlayOneShot(clip);
     }
 }

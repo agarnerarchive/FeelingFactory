@@ -20,6 +20,9 @@ public class DoorTransition : MonoBehaviour
     [Header("Next Level")]
     public string nextLevelName;
 
+    public AudioSource audioSource;
+    public AudioClip doorshut;
+
     // Hook this to your button's OnClick in the Inspector
     public void OnButtonPressed()
     {
@@ -55,6 +58,7 @@ public class DoorTransition : MonoBehaviour
             anim.enabled = true;
             anim.Play(doorClipTwo.name);
             longestClip = Mathf.Max(longestClip, doorClipTwo.length);
+            PlayClip(doorshut);
         }
 
         // Wait for the longer of the two clips to finish
@@ -67,5 +71,10 @@ public class DoorTransition : MonoBehaviour
         }
 
         SceneManager.LoadScene(nextLevelName);
+    }
+
+    void PlayClip(AudioClip clip)
+    {
+        if (audioSource && clip) audioSource.PlayOneShot(clip);
     }
 }

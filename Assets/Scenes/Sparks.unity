@@ -432,6 +432,8 @@ MonoBehaviour:
   - 'Let''s take a break. '
   - 'Lets learn a coping technique! '
   nextLevelName: BreatheBall
+  audioSource: {fileID: 1574435681}
+  doorshut: {fileID: 8300000, guid: d2c562c82e6b8634e9332b9d32baeb62, type: 3}
 --- !u!1 &42304063
 GameObject:
   m_ObjectHideFlags: 0
@@ -4741,7 +4743,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 724, y: -75.900024}
+  m_AnchoredPosition: {x: 724, y: -75.8999}
   m_SizeDelta: {x: 280, y: 185}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1389389127
@@ -5423,6 +5425,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1574435682}
   - component: {fileID: 1574435681}
+  - component: {fileID: 1574435683}
   m_Layer: 0
   m_Name: universfield-opening-metal-door-199581
   m_TagString: Untagged
@@ -5442,7 +5445,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: d2c562c82e6b8634e9332b9d32baeb62, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -5542,6 +5545,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1863948829}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1574435683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574435680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e12ba096697059942b6a95e6e27e68c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::delay_audio
+  audioSource: {fileID: 1574435681}
+  clip: {fileID: 8300000, guid: d2c562c82e6b8634e9332b9d32baeb62, type: 3}
 --- !u!1 &1578757028
 GameObject:
   m_ObjectHideFlags: 0
