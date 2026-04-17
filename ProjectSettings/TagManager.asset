@@ -7,6 +7,7 @@ TagManager:
   - wall
   - Spark
   - Jar
+  - MainEmoji
   layers:
   - Default
   - TransparentFX
@@ -64,6 +65,9 @@ TagManager:
     locked: 0
   - name: cannon
     uniqueID: 4202172711
+    locked: 0
+  - name: Bubbles
+    uniqueID: 465372717
     locked: 0
   m_RenderingLayers:
   - Default
